@@ -25,7 +25,7 @@ function formatDate(iso: string) {
 
 export function InviteManager() {
   const { createInvite, listInvites, revokeInvite } = useAuth()
-  const { addToast } = useToast()
+  const { toast } = useToast()
 
   const [invites, setInvites]         = useState<TrainerInvite[]>([])
   const [listLoading, setListLoading] = useState(true)
@@ -48,11 +48,11 @@ export function InviteManager() {
     setSending(true)
     const result = await createInvite(email.trim())
     if (result.ok) {
-      addToast(`Invite sent to ${email.trim()}`, 'success')
+      toast.success(`Invite sent to ${email.trim()}`)
       setEmail('')
       await load()
     } else {
-      addToast(result.error ?? 'Failed to send invite', 'error')
+      toast.error(result.error ?? 'Failed to send invite')
     }
     setSending(false)
   }
@@ -61,10 +61,10 @@ export function InviteManager() {
     setRevoking(inviteId)
     try {
       await revokeInvite(inviteId)
-      addToast(`Invite to ${inviteEmail} revoked`, 'success')
+      toast.success(`Invite to ${inviteEmail} revoked`)
       await load()
     } catch {
-      addToast('Failed to revoke invite', 'error')
+      toast.error('Failed to revoke invite')
     }
     setRevoking(null)
   }
