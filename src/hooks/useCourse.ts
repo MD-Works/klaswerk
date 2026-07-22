@@ -311,7 +311,7 @@ export function useCourse() {
         .eq('courses.trainer_id', user.id),
 
       db
-        .from('sessions')
+        .from('live_sessions')
         .select('id, status, scheduled_for')
         .eq('trainer_id', user.id)
         .gte('scheduled_for', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
@@ -400,3 +400,4 @@ export function useCourse() {
     enrollStudent,
   }
 }
+

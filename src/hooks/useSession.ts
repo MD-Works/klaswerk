@@ -115,7 +115,7 @@ export function useSession() {
     setError(null)
 
     let query = supabase
-      .from('sessions')
+      .from('live_sessions')
       .select(`
         *,
         course:course_id ( id, title ),
@@ -139,7 +139,7 @@ export function useSession() {
     setError(null)
 
     const { data, error: err } = await supabase
-      .from('sessions')
+      .from('live_sessions')
       .select(`
         *,
         course:course_id ( id, title ),
@@ -163,7 +163,7 @@ export function useSession() {
     setError(null)
 
     const { data, error: err } = await db
-      .from('sessions')
+      .from('live_sessions')
       .insert({
         trainer_id:        user.id,
         course_id:         form.course_id || null,
@@ -200,7 +200,7 @@ export function useSession() {
     if (updates.whereby_room_id !== undefined) patch.whereby_room_id = updates.whereby_room_id
 
     const { data, error: err } = await db
-      .from('sessions')
+      .from('live_sessions')
       .update(patch)
       .eq('id', sessionId)
       .select()
@@ -213,7 +213,7 @@ export function useSession() {
   // ── Delete session ────────────────────────────────────────────────────────
   const deleteSession = useCallback(async (sessionId: string): Promise<boolean> => {
     if (!user) return false
-    const { error: err } = await supabase.from('sessions').delete().eq('id', sessionId)
+    const { error: err } = await supabase.from('live_sessions').delete().eq('id', sessionId)
     if (err) { setError(err.message); return false }
     return true
   }, [user])
@@ -234,7 +234,7 @@ export function useSession() {
     // Check if the room has expired and recreate it
     if (wherebyApiKey) {
       const { data: sessionRow } = await db
-        .from('sessions')
+        .from('live_sessions')
         .select('whereby_room_id, whereby_host_url, room_expires_at, scheduled_for')
         .eq('id', sessionId)
         .single()
@@ -253,7 +253,7 @@ export function useSession() {
     }
 
     const { error: err } = await db
-      .from('sessions')
+      .from('live_sessions')
       .update(patch)
       .eq('id', sessionId)
 
@@ -265,7 +265,7 @@ export function useSession() {
   const endSession = useCallback(async (sessionId: string): Promise<boolean> => {
     if (!user) return false
     const { error: err } = await db
-      .from('sessions')
+      .from('live_sessions')
       .update({ status: 'completed', ended_at: new Date().toISOString() })
       .eq('id', sessionId)
     if (err) { setError(err.message); return false }
@@ -362,3 +362,4 @@ export function useSession() {
     fetchAttendance,
   }
 }
+

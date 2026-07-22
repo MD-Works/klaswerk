@@ -104,7 +104,7 @@ export function useAnalytics() {
         db.from('enrollments').select('id, status, student_id').in('course_id', courseIds),
         db.from('certificates').select('id').in('course_id', courseIds),
         db.from('payments').select('amount, status').in('course_id', courseIds).eq('status', 'complete'),
-        db.from('sessions').select('id').in('course_id', courseIds),
+        db.from('live_sessions').select('id').in('course_id', courseIds),
         db.from('quiz_attempts').select('percentage, quiz_id').in('quiz_id', await getQuizIds(courseIds)),
       ])
 
@@ -206,7 +206,7 @@ export function useAnalytics() {
     setIsLoading(true)
 
     const { data: sessions } = await db
-      .from('sessions')
+      .from('live_sessions')
       .select('id, title, scheduled_for, status, course:course_id(title)')
       .eq('trainer_id', user.id)
       .order('scheduled_for', { ascending: false })
@@ -259,3 +259,4 @@ async function getQuizIds(courseIds: string[]): Promise<string[]> {
   const { data: quizzes } = await db.from('quizzes').select('id').in('lesson_id', lessonIds)
   return (quizzes ?? []).map((q: { id: string }) => q.id)
 }
+
