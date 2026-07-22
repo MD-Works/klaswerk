@@ -254,7 +254,7 @@ function TrainerCourseCard({
   const statusStyle = STATUS_STYLE[course.status] ?? STATUS_STYLE.draft
 
   return (
-    <div className="kw-card" style={{ padding: '1.25rem', position: 'relative' }}>
+    <div className="kw-card" style={{ padding: '1.25rem', position: 'relative', cursor: 'pointer' }} onClick={() => window.location.href = `/courses/${course.id}`}>
 
       {/* Status badge */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
@@ -574,3 +574,4 @@ function MenuAction({ label, onClick, danger = false }: { label: string; onClick
     </button>
   )
 }
+
