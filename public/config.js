@@ -14,7 +14,7 @@ window.KLASWERK_CONFIG = {
   app: {
     name:         "KlasWerk Dev",
     clientCode:   "dev",
-    url:          "http://localhost:5173",
+    url:          "https://klaswerk.pages.dev",
     supportEmail: "dev@klaswerk.local",
     currency:     "ZAR",
     language:     "en",
