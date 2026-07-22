@@ -22,7 +22,6 @@ interface AuthState {
   clearAuth:   () => void
 
   // Derived helpers
-  isOwner:    () => boolean
   isTrainer:  () => boolean
   isStudent:  () => boolean
   isLoggedIn: () => boolean
@@ -53,9 +52,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   }),
 
   // Derived — called as functions so they always reflect latest state
-  isOwner:    () => get().role === 'owner',
-  isTrainer:  () => (get().role === 'trainer' || get().role === 'owner') || get().role === 'owner',   // owner has all trainer rights
+  isTrainer:  () => get().role === 'trainer' || get().role === 'owner',
   isStudent:  () => get().role === 'student',
   isLoggedIn: () => get().user !== null,
 }))
-
