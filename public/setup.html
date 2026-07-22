@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KlasWerk Setup Wizard — MD Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Raleway:wght@300;400;500&family=Syne:wght@400;500;600;700&family=Syne+Mono&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── Brand tokens ── */
+:root{
+  --dark:    #0a0906;
+  --surface: #110e09;
+  --panel:   #1a1610;
+  --panel2:  #211c14;
+  --border:  #2c2619;
+  --borderlt:#3d3526;
+  --gold-dk: #7a5815;
+  --gold:    #c9943c;
+  --gold-lt: #e8c87a;
+  --cream:   #f0e6ce;
+  --muted:   #7a6d58;
+  --faint:   #3d3526;
+  --success: #4caf7a;
+  --danger:  #c94c4c;
+  --info:    #4c8fc9;
+  --r:       4px;
+}
+
+/* ── Base ── */
+html{scroll-behavior:smooth}
+body{
+  background:var(--dark);
+  color:var(--cream);
+  font-family:'Raleway',sans-serif;
+  font-size:15px;
+  line-height:1.65;
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* Grain */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+/* Ambient */
+body::after{
+  content:'';position:fixed;top:-20vh;left:50%;transform:translateX(-50%);
+  width:80vw;height:60vh;
+  background:radial-gradient(ellipse,rgba(201,148,60,.06) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+.page{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:0 1.5rem 4rem}
+
+/* ── Warning banner ── */
+.warn-banner{
+  background:rgba(201,76,76,.1);
+  border:1px solid rgba(201,76,76,.3);
+  border-radius:var(--r);
+  padding:.75rem 1rem;
+  margin:1.5rem 0;
+  display:flex;gap:.75rem;align-items:flex-start;
+  font-family:'Syne Mono',monospace;font-size:.68rem;letter-spacing:.05em;color:#e87a7a;
+}
+.warn-banner .warn-icon{font-size:1rem;flex-shrink:0;margin-top:.05rem}
+
+/* ── Header ── */
+.site-header{
+  padding:2rem 0 1.5rem;
+  border-bottom:1px solid var(--border);
+  margin-bottom:2.5rem;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;
+}
+.brand{
+  font-family:'Cinzel',serif;font-weight:900;font-size:1.4rem;
+  letter-spacing:.1em;color:var(--gold-lt);
+}
+.brand span{color:var(--gold-dk);font-weight:400}
+.header-sub{
+  font-family:'Syne Mono',monospace;font-size:.6rem;
+  letter-spacing:.25em;color:var(--gold-dk);text-transform:uppercase;
+}
+
+/* ── Progress bar ── */
+.progress-wrap{margin-bottom:2.5rem}
+.progress-label{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:.6rem;
+}
+.progress-label .step-txt{
+  font-family:'Syne Mono',monospace;font-size:.62rem;
+  letter-spacing:.2em;color:var(--gold-dk);text-transform:uppercase;
+}
+.progress-label .step-count{
+  font-family:'Syne Mono',monospace;font-size:.62rem;color:var(--muted);
+}
+.progress-track{
+  height:3px;background:var(--border);border-radius:2px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--gold-dk),var(--gold));
+  border-radius:2px;
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Step dots ── */
+.step-dots{
+  display:flex;gap:.4rem;align-items:center;margin-bottom:2rem;flex-wrap:wrap;
+}
+.step-dot{
+  width:28px;height:28px;border-radius:50%;
+  border:1px solid var(--border);
+  background:var(--panel);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne Mono',monospace;font-size:.6rem;color:var(--muted);
+  cursor:pointer;transition:all .2s;flex-shrink:0;
+}
+.step-dot.active{
+  border-color:var(--gold);color:var(--gold);background:rgba(201,148,60,.1);
+}
+.step-dot.done{
+  border-color:var(--success);color:var(--success);background:rgba(76,175,122,.1);
+}
+.step-dot-label{
+  font-family:'Syne Mono',monospace;font-size:.55rem;
+  letter-spacing:.12em;color:var(--muted);text-transform:uppercase;
+  display:none;
+}
+@media(min-width:600px){.step-dot-label{display:inline}}
+.step-connector{
+  flex:1;max-width:40px;height:1px;background:var(--border);
+}
+
+/* ── Step panel ── */
+.step-panel{display:none}
+.step-panel.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Section headers ── */
+.step-eyebrow{
+  font-family:'Syne Mono',monospace;font-size:.6rem;
+  letter-spacing:.3em;color:var(--gold-dk);text-transform:uppercase;
+  margin-bottom:.5rem;
+}
+.step-title{
+  font-family:'Cinzel',serif;font-size:1.5rem;font-weight:600;
+  color:var(--gold-lt);line-height:1.2;margin-bottom:.5rem;
+}
+.step-subtitle{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:1rem;color:var(--muted);margin-bottom:1.75rem;
+}
+
+/* ── Divider ── */
+.divider{
+  width:100%;height:1px;margin:1.75rem 0;
+  background:linear-gradient(90deg,transparent,var(--borderlt) 20%,var(--gold-dk) 50%,var(--borderlt) 80%,transparent);
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.divider::after{
+  content:'✦';position:absolute;
+  font-size:.65rem;color:var(--gold-dk);
+  background:var(--dark);padding:0 .75rem;
+}
+
+/* ── Help box ── */
+.help-box{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-left:3px solid var(--gold-dk);
+  border-radius:var(--r);
+  padding:1.1rem 1.25rem;
+  margin-bottom:1.5rem;
+}
+.help-box-title{
+  font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem;
+}
+.help-box p{font-size:.85rem;color:rgba(240,230,206,.75);line-height:1.65;margin-bottom:.5rem}
+.help-box p:last-child{margin-bottom:0}
+.help-box a{color:var(--gold);text-decoration:none}
+.help-box a:hover{text-decoration:underline}
+.help-box ol,.help-box ul{
+  padding-left:1.25rem;font-size:.85rem;
+  color:rgba(240,230,206,.75);line-height:1.75;
+}
+.help-box li{margin-bottom:.2rem}
+
+/* ── Code block ── */
+.code-block{
+  background:var(--dark);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:.9rem 1rem;
+  margin:.75rem 0;
+  position:relative;
+  overflow-x:auto;
+}
+.code-block pre{
+  font-family:'Syne Mono',monospace;font-size:.72rem;
+  color:#a8c99a;line-height:1.7;white-space:pre;
+}
+.code-block .comment{color:var(--muted)}
+.code-block .cmd{color:var(--gold-lt)}
+.code-block .str{color:#c9a87a}
+.code-block .kw{color:#8ab4c9}
+.code-copy{
+  position:absolute;top:.5rem;right:.5rem;
+  background:transparent;border:1px solid var(--border);
+  border-radius:3px;padding:.2rem .5rem;
+  font-family:'Syne Mono',monospace;font-size:.58rem;
+  color:var(--muted);cursor:pointer;transition:all .2s;
+}
+.code-copy:hover{color:var(--gold);border-color:var(--gold-dk)}
+.code-copy.copied{color:var(--success);border-color:var(--success)}
+
+/* ── Windows / Mac tabs ── */
+.os-tabs{display:flex;gap:0;margin-bottom:0;border-bottom:1px solid var(--border)}
+.os-tab{
+  padding:.45rem .9rem;
+  font-family:'Syne Mono',monospace;font-size:.6rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .15s;background:transparent;border-top:none;border-left:none;border-right:none;
+}
+.os-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.os-content{display:none}
+.os-content.active{display:block}
+
+/* ── Form fields ── */
+.field-group{margin-bottom:1.25rem}
+.field-label{
+  display:block;font-family:'Syne',sans-serif;font-size:.7rem;
+  font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold-dk);margin-bottom:.4rem;
+}
+.field-hint{
+  font-family:'Raleway',sans-serif;font-size:.75rem;
+  color:var(--muted);margin-bottom:.4rem;display:block;
+}
+.field-input{
+  width:100%;padding:.7rem .9rem;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  color:var(--cream);
+  font-family:'Syne Mono',monospace;font-size:.78rem;
+  transition:border-color .2s;outline:none;
+}
+.field-input:focus{border-color:var(--gold-dk)}
+.field-input::placeholder{color:var(--faint)}
+.field-input.error{border-color:var(--danger)}
+
+select.field-input{cursor:pointer}
+select.field-input option{background:var(--panel);color:var(--cream)}
+
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:560px){.field-row{grid-template-columns:1fr}}
+
+/* ── Toggle ── */
+.toggle-wrap{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.7rem .9rem;
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--r);
+  cursor:pointer;
+}
+.toggle-label{font-family:'Raleway',sans-serif;font-size:.85rem;color:var(--cream);flex:1}
+.toggle-sublabel{font-size:.75rem;color:var(--muted);display:block;margin-top:.1rem}
+.toggle{
+  width:38px;height:22px;background:var(--border);border-radius:11px;
+  position:relative;transition:background .2s;flex-shrink:0;
+}
+.toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:16px;height:16px;border-radius:50%;background:var(--muted);
+  transition:transform .2s,background .2s;
+}
+.toggle.on{background:rgba(76,175,122,.25);border:1px solid var(--success)}
+.toggle.on::after{transform:translateX(16px);background:var(--success)}
+
+/* ── Test button ── */
+.test-btn{
+  padding:.55rem 1.1rem;
+  background:transparent;
+  border:1px solid var(--borderlt);
+  border-radius:var(--r);
+  color:var(--muted);
+  font-family:'Syne',sans-serif;font-size:.72rem;letter-spacing:.08em;
+  cursor:pointer;transition:all .2s;margin-top:.5rem;
+}
+.test-btn:hover{color:var(--gold-lt);border-color:var(--gold-dk)}
+.test-result{
+  margin-top:.5rem;padding:.5rem .75rem;border-radius:var(--r);
+  font-family:'Syne Mono',monospace;font-size:.68rem;display:none;
+}
+.test-result.ok{background:rgba(76,175,122,.1);border:1px solid rgba(76,175,122,.3);color:var(--success)}
+.test-result.fail{background:rgba(201,76,76,.1);border:1px solid rgba(201,76,76,.3);color:#e87a7a}
+
+/* ── Nav buttons ── */
+.step-nav{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:2rem;padding-top:1.5rem;
+  border-top:1px solid var(--border);
+}
+.btn-primary{
+  padding:.75rem 1.6rem;
+  background:linear-gradient(135deg,var(--gold-dk),var(--gold));
+  color:var(--dark);border:none;border-radius:var(--r);
+  font-family:'Cinzel',serif;font-size:.8rem;font-weight:600;letter-spacing:.12em;
+  cursor:pointer;transition:opacity .2s,transform .1s;
+}
+.btn-primary:hover{opacity:.9}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-secondary{
+  padding:.7rem 1.4rem;
+  background:transparent;border:1px solid var(--borderlt);
+  color:var(--muted);border-radius:var(--r);
+  font-family:'Raleway',sans-serif;font-size:.82rem;letter-spacing:.06em;
+  cursor:pointer;transition:all .2s;
+}
+.btn-secondary:hover{color:var(--gold-lt);border-color:var(--gold-dk)}
+
+/* ── Config output ── */
+.config-output{
+  background:var(--dark);border:1px solid var(--borderlt);
+  border-radius:var(--r);padding:1.25rem;
+  font-family:'Syne Mono',monospace;font-size:.72rem;
+  color:#a8c99a;line-height:1.8;
+  white-space:pre;overflow-x:auto;
+  max-height:420px;overflow-y:auto;
+}
+
+/* ── Checklist ── */
+.checklist{list-style:none;padding:0}
+.checklist li{
+  display:flex;gap:.75rem;align-items:flex-start;
+  padding:.6rem 0;border-bottom:1px solid var(--border);
+  font-size:.85rem;color:rgba(240,230,206,.8);
+}
+.checklist li:last-child{border-bottom:none}
+.check-icon{
+  font-family:'Syne Mono',monospace;font-size:.7rem;
+  color:var(--gold-dk);flex-shrink:0;margin-top:.15rem;
+}
+.check-icon.done{color:var(--success)}
+
+/* ── Client card ── */
+.client-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--r);padding:1.1rem 1.25rem;
+  margin-bottom:.75rem;
+  display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;
+}
+.client-name{
+  font-family:'Cinzel',serif;font-size:.9rem;color:var(--gold-lt);
+  margin-bottom:.2rem;
+}
+.client-meta{
+  font-family:'Syne Mono',monospace;font-size:.6rem;color:var(--muted);
+  letter-spacing:.08em;
+}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:50px;padding:.65rem 1.4rem;
+  font-family:'Syne',sans-serif;font-size:.82rem;letter-spacing:.05em;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;z-index:1000;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:var(--success);color:var(--success)}
+.toast.error{border-color:var(--danger);color:#e87a7a}
+.toast.info{border-color:var(--gold-dk);color:var(--gold)}
+
+/* ── Link style ── */
+a.ext{color:var(--gold);text-decoration:none;font-family:'Syne Mono',monospace;font-size:.8rem}
+a.ext:hover{text-decoration:underline}
+
+/* ── Collapsed help ── */
+details.help{margin-bottom:1rem}
+details.help summary{
+  list-style:none;cursor:pointer;
+  display:flex;align-items:center;gap:.5rem;
+  font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold-dk);padding:.5rem 0;
+  user-select:none;
+}
+details.help summary::-webkit-details-marker{display:none}
+details.help summary::before{content:'▶';font-size:.55rem;transition:transform .2s}
+details[open].help summary::before{transform:rotate(90deg)}
+details.help .help-inner{padding:.25rem 0 .5rem 1.1rem}
+
+/* ── Step 6 — client record form ── */
+.registry-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;
+}
+.saved-badge{
+  font-family:'Syne Mono',monospace;font-size:.6rem;
+  letter-spacing:.15em;color:var(--success);
+  background:rgba(76,175,122,.08);border:1px solid rgba(76,175,122,.2);
+  border-radius:3px;padding:.25rem .6rem;
+}
+
+/* ── Footer ── */
+.site-footer{
+  text-align:center;padding:2.5rem 0;
+  border-top:1px solid var(--border);margin-top:3rem;
+}
+.site-footer .brand-mark{
+  font-family:'Cinzel',serif;font-size:.7rem;
+  letter-spacing:.3em;color:var(--gold-dk);margin-bottom:.35rem;
+}
+.site-footer .sub{
+  font-family:'Syne Mono',monospace;font-size:.55rem;
+  letter-spacing:.15em;color:var(--faint);
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══════════════════════════════════════
+       WARNING BANNER
+  ══════════════════════════════════════ -->
+  <div class="warn-banner">
+    <div class="warn-icon">⚠</div>
+    <div>
+      <strong>Security notice:</strong> This setup page exposes configuration values.
+      Delete or rename <code>setup.html</code> after completing setup, or restrict access via your hosting provider.
+      Never share this URL publicly.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════ -->
+  <header class="site-header">
+    <div>
+      <div class="brand">Klas<span>Werk</span></div>
+      <div class="header-sub">Setup Wizard — MD Works</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-family:'Syne Mono',monospace;font-size:.6rem;color:var(--muted)">Version 1.0</div>
+      <div style="font-family:'Syne Mono',monospace;font-size:.6rem;color:var(--faint)">Sessions 3–10</div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════
+       PROGRESS
+  ══════════════════════════════════════ -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span class="step-txt" id="progressLabel">Step 1 of 6</span>
+      <span class="step-count" id="progressPct">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Step dots -->
+  <div class="step-dots">
+    <div class="step-dot active" id="dot-1" onclick="goStep(1)" title="Welcome">1</div>
+    <div class="step-connector"></div>
+    <div class="step-dot" id="dot-2" onclick="goStep(2)" title="Supabase">2</div>
+    <div class="step-connector"></div>
+    <div class="step-dot" id="dot-3" onclick="goStep(3)" title="PayFast">3</div>
+    <div class="step-connector"></div>
+    <div class="step-dot" id="dot-4" onclick="goStep(4)" title="Whereby + Brand">4</div>
+    <div class="step-connector"></div>
+    <div class="step-dot" id="dot-5" onclick="goStep(5)" title="Generate Config">5</div>
+    <div class="step-connector"></div>
+    <div class="step-dot" id="dot-6" onclick="goStep(6)" title="Client Record">6</div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STEP 1 — WELCOME
+  ══════════════════════════════════════ -->
+  <div class="step-panel active" id="step-1">
+    <div class="step-eyebrow">✦ &nbsp; Getting Started</div>
+    <h1 class="step-title">Welcome to the Setup Wizard</h1>
+    <p class="step-subtitle">This wizard will walk you through every step to deploy a new KlasWerk site for a client — from scratch, even if you've never done it before.</p>
+
+    <div class="help-box">
+      <div class="help-box-title">📋 What you'll need before you start</div>
+      <ol>
+        <li>A <strong>Supabase account</strong> (free) — <a href="https://supabase.com" target="_blank">supabase.com</a></li>
+        <li>A <strong>PayFast account</strong> — <a href="https://www.payfast.co.za" target="_blank">payfast.co.za</a> (only needed for paid courses)</li>
+        <li>A <strong>Whereby account</strong> — <a href="https://whereby.com/information/embedded" target="_blank">whereby.com/embedded</a> (only needed for live sessions)</li>
+        <li>A <strong>Resend account</strong> (free) — <a href="https://resend.com" target="_blank">resend.com</a> (for email notifications)</li>
+        <li>A <strong>Cloudflare account</strong> (free) — <a href="https://cloudflare.com" target="_blank">cloudflare.com</a> (for the payment webhook and hosting)</li>
+        <li><strong>Node.js</strong> installed on your computer — <a href="https://nodejs.org" target="_blank">nodejs.org</a> (choose the LTS version)</li>
+        <li>The <strong>KlasWerk codebase</strong> — either cloned from GitHub or the scaffold zip</li>
+      </ol>
+    </div>
+
+    <div class="help-box">
+      <div class="help-box-title">🗂 What this wizard does</div>
+      <p>At the end of the 6 steps, you'll have:</p>
+      <ol>
+        <li>A complete <strong>config.js</strong> file to drop into the project</li>
+        <li>All the <strong>commands</strong> you need to run, ready to copy-paste</li>
+        <li>A <strong>client record</strong> saved to your MD Works registry for future maintenance</li>
+      </ol>
+    </div>
+
+    <div class="help-box">
+      <div class="help-box-title">💡 How to use this page</div>
+      <p>Work through each step in order. Every step has a help section explaining what to do and why. Commands are shown for both <strong>Windows (PowerShell)</strong> and <strong>Mac/Linux (Terminal)</strong>. You can come back to any step using the numbered dots above.</p>
+    </div>
+
+    <div class="step-nav">
+      <div></div>
+      <button class="btn-primary" onclick="goStep(2)">Start Setup →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STEP 2 — SUPABASE
+  ══════════════════════════════════════ -->
+  <div class="step-panel" id="step-2">
+    <div class="step-eyebrow">✦ &nbsp; Step 2 of 6</div>
+    <h1 class="step-title">Supabase — Database & Auth</h1>
+    <p class="step-subtitle">Supabase is the database that powers KlasWerk. It stores all users, courses, lessons, and payments — completely free on the Starter plan.</p>
+
+    <div class="help-box">
+      <div class="help-box-title">🚀 How to create a new Supabase project</div>
+      <ol>
+        <li>Go to <a href="https://supabase.com" target="_blank">supabase.com</a> and sign in (or create a free account)</li>
+        <li>Click <strong>New Project</strong></li>
+        <li>Choose your organisation (or create one)</li>
+        <li>Give the project a name — e.g. <strong>klaswerk-clientname</strong></li>
+        <li>Set a strong database password — <em>save this somewhere safe, you'll need it later</em></li>
+        <li>Choose region: <strong>South Africa (Cape Town)</strong> — closest to your users</li>
+        <li>Click <strong>Create new project</strong> and wait about 60 seconds</li>
+      </ol>
+    </div>
+
+    <div class="help-box">
+      <div class="help-box-title">🔑 Where to find your keys</div>
+      <ol>
+        <li>In your Supabase project, go to <strong>Settings → API</strong> (left sidebar)</li>
+        <li>Under <strong>Project URL</strong> — copy the URL (looks like <code>https://xxxx.supabase.co</code>)</li>
+        <li>Under <strong>Project API keys</strong> — copy the <strong>anon / public</strong> key (starts with <code>eyJ</code>)</li>
+        <li><em>Do NOT use the service_role key here — that is only for the Cloudflare Worker (configured later)</em></li>
+      </ol>
+    </div>
+
+    <div class="help-box">
+      <div class="help-box-title">🗄 Running the database migrations</div>
+      <p>KlasWerk needs 4 SQL files run in order to set up all the tables, policies, and views. Do this once after creating the project:</p>
+      <ol>
+        <li>In Supabase, click <strong>SQL Editor</strong> in the left sidebar</li>
+        <li>Click <strong>New query</strong></li>
+        <li>Open the file <code>supabase/migrations/001_initial.sql</code> from the project folder, copy all the text, paste it in, and click <strong>Run</strong></li>
+        <li>Repeat for <code>002_s8_analytics_views.sql</code>, then <code>003_s9_cert_storage_public_page.sql</code>, then <code>004_s10_trainer_profile_view.sql</code></li>
+        <li>Each one should say <strong>"Success. No rows returned"</strong> — that's correct</li>
+      </ol>
+      <p>If you see an error, check that you ran them in order (001 first).</p>
+    </div>
+
+    <div class="help-box">
+      <div class="help-box-title">📧 Setting up Supabase Auth email templates</div>
+      <ol>
+        <li>In Supabase, go to <strong>Authentication → Email Templates</strong></li>
+        <li>For <strong>Confirm signup</strong>: paste the contents of <code>supabase/email-templates/confirm-signup.html</code></li>
+        <li>For <strong>Reset password</strong>: paste <code>supabase/email-templates/reset-password.html</code></li>
+        <li>For <strong>Magic link</strong>: paste <code>supabase/email-templates/magic-link.html</code></li>
+        <li>Click <strong>Save</strong> after each one</li>
+      </ol>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field-group">
+      <label class="field-label" for="sb-url">Supabase Project URL</label>
+      <span class="field-hint">From Settings → API → Project URL (e.g. https://abcdefgh.supabase.co)</span>
+      <input class="field-input" id="sb-url" type="url" placeholder="https://xxxx.supabase.co"/>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="sb-anon">Supabase Anon / Public Key</label>
+      <span class="field-hint">From Settings → API → Project API keys → anon public (starts with eyJ...)</span>
+      <input class="field-input" id="sb-anon" type="text" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."/>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="sb-service">Supabase Service Role Key</label>
+      <span class="field-hint">From Settings → API → service_role secret key. Used only by the Cloudflare Worker — never in the frontend.</span>
+      <input class="field-input" id="sb-service" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."/>
+    </div>
+
+    <button class="test-btn" onclick="testSupabase()">▶ Test Connection</button>
+    <div class="test-result" id="sb-test-result"></div>
+
+    <div class="step-nav">
+      <button class="btn-secondary" onclick="goStep(1)">← Back</button>
+      <button class="btn-primary" onclick="goStep(3)">Next: PayFast →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STEP 3 — PAYFAST
+  ══════════════════════════════════════ -->
+  <div class="step-panel" id="step-3">
+    <div class="step-eyebrow">✦ &nbsp; Step 3 of 6</div>
+    <h1 class="step-title">PayFast — Payments</h1>
+    <p class="step-subtitle">PayFast handles all payments securely. You need this for paid courses. If this client only runs free courses, you can skip this step.</p>
+
+    <div class="help-box">
+      <div class="help-box-title">🏦 Setting up your PayFast account</div>
+      <ol>
+        <li>Go to <a href="https://www.payfast.co.za" target="_blank">payfast.co.za</a> and register as a merchant</li>
+        <li>Complete the verification process (ID, bank account) — this can take 1–2 business days</li>
+        <li>Once approved, log in to your merchant dashboard</li>
+        <li>Go to <strong>Settings → Integration</strong></li>
+        <li>Find your <strong>Merchant ID</strong> and <strong>Merchant Key</strong></li>
+        <li>Set a <strong>Passphrase</strong> — this is a secret you choose and type into PayFast's settings. Use something strong like a random 16-character string. Write it down.</li>
+      </ol>
+    </div>
+
+    <div class="help-box">
+      <div class="help-box-title">🔧 Deploying the PayFast Cloudflare Worker</div>
+      <p>This worker receives payment notifications from PayFast and updates your database. Run these commands in order:</p>
+
+      <div class="os-tabs">
+        <button class="os-tab active" onclick="switchOS(this,'pf-win')">Windows (PowerShell)</button>
+        <button class="os-tab" onclick="switchOS(this,'pf-mac')">Mac / Linux</button>
+      </div>
+      <div class="os-content active" id="pf-win">
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># Navigate to the worker folder</span>
+<span class="cmd">cd workers\payment-webhook</span>
+
+<span class="comment"># Install Wrangler (Cloudflare's deploy tool) — only needed once</span>
+<span class="cmd">npm install -g wrangler</span>
+
+<span class="comment"># Log in to Cloudflare (opens browser)</span>
+<span class="cmd">wrangler login</span>
+
+<span class="comment"># Create the KV namespace for replay protection</span>
+<span class="cmd">wrangler kv:namespace create SEEN_PAYMENTS</span>
+<span class="comment"># Copy the "id" value from the output</span>
+<span class="comment"># Open wrangler.toml and paste it next to: id = "REPLACE_WITH..."</span>
+
+<span class="comment"># Deploy the worker</span>
+<span class="cmd">wrangler deploy</span>
+
+<span class="comment"># Set secrets (you'll be prompted to type each value)</span>
+<span class="cmd">wrangler secret put SUPABASE_URL</span>
+<span class="cmd">wrangler secret put SUPABASE_SERVICE_KEY</span>
+<span class="cmd">wrangler secret put PAYFAST_PASSPHRASE</span>
+<span class="cmd">wrangler secret put PAYFAST_MERCHANT_ID</span>
+<span class="cmd">wrangler secret put TEST_MODE</span>
+<span class="comment"># For TEST_MODE: type  false  for production, or  true  for testing</span></pre>
+        </div>
+      </div>
+      <div class="os-content" id="pf-mac">
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># Navigate to the worker folder</span>
+<span class="cmd">cd workers/payment-webhook</span>
+
+<span class="comment"># Install Wrangler — only needed once</span>
+<span class="cmd">npm install -g wrangler</span>
+
+<span class="comment"># Log in to Cloudflare (opens browser)</span>
+<span class="cmd">wrangler login</span>
+
+<span class="comment"># Create the KV namespace for replay protection</span>
+<span class="cmd">wrangler kv:namespace create SEEN_PAYMENTS</span>
+<span class="comment"># Copy the "id" from the output</span>
+<span class="comment"># Edit wrangler.toml and paste it next to: id = "REPLACE_WITH..."</span>
+
+<span class="comment"># Deploy the worker</span>
+<span class="cmd">wrangler deploy</span>
+
+<span class="comment"># Set secrets (you'll be prompted to type each value)</span>
+<span class="cmd">wrangler secret put SUPABASE_URL</span>
+<span class="cmd">wrangler secret put SUPABASE_SERVICE_KEY</span>
+<span class="cmd">wrangler secret put PAYFAST_PASSPHRASE</span>
+<span class="cmd">wrangler secret put PAYFAST_MERCHANT_ID</span>
+<span class="cmd">wrangler secret put TEST_MODE</span>
+<span class="comment"># For TEST_MODE: type  false  for production, or  true  for testing</span></pre>
+        </div>
+      </div>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:.75rem">
+        After deploying, Wrangler will print a URL like <code>https://klaswerk-payment-webhook.yourname.workers.dev</code> — copy that for the Notify URL field below.
+      </p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label" for="pf-merchant-id">Merchant ID</label>
+        <span class="field-hint">From PayFast → Settings → Integration</span>
+        <input class="field-input" id="pf-merchant-id" type="text" placeholder="12345678"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="pf-merchant-key">Merchant Key</label>
+        <span class="field-hint">From PayFast → Settings → Integration</span>
+        <input class="field-input" id="pf-merchant-key" type="text" placeholder="xxxxxxxxxxxxxxxx"/>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="pf-passphrase">Passphrase</label>
+      <span class="field-hint">The secret passphrase you set in PayFast → Settings → Integration. Must match exactly.</span>
+      <input class="field-input" id="pf-passphrase" type="password" placeholder="your-secret-passphrase"/>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="pf-notify-url">Worker Notify URL</label>
+      <span class="field-hint">The URL Wrangler printed after deploying (e.g. https://klaswerk-payment-webhook.xxx.workers.dev/payfast-webhook)</span>
+      <input class="field-input" id="pf-notify-url" type="url" placeholder="https://klaswerk-payment-webhook.xxx.workers.dev/payfast-webhook"/>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="pf-site-url">Site URL</label>
+      <span class="field-hint">The client's domain — used for PayFast return/cancel URLs (e.g. https://klaswerk.co.za)</span>
+      <input class="field-input" id="pf-site-url" type="url" placeholder="https://yoursite.co.za"/>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Mode</label>
+      <div class="toggle-wrap" onclick="togglePayfastMode(this)">
+        <div>
+          <span class="toggle-label">Live / Production</span>
+          <span class="toggle-sublabel" id="pf-mode-hint">Toggle off for sandbox testing</span>
+        </div>
+        <div class="toggle" id="pf-mode-toggle"></div>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-secondary" onclick="goStep(2)">← Back</button>
+      <button class="btn-primary" onclick="goStep(4)">Next: Whereby + Brand →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STEP 4 — WHEREBY + BRAND
+  ══════════════════════════════════════ -->
+  <div class="step-panel" id="step-4">
+    <div class="step-eyebrow">✦ &nbsp; Step 4 of 6</div>
+    <h1 class="step-title">Whereby + Brand</h1>
+    <p class="step-subtitle">Whereby powers the live video sessions. Brand settings let you customise the site name and logo per client.</p>
+
+    <div class="help-box">
+      <div class="help-box-title">📹 Setting up Whereby Embedded</div>
+      <ol>
+        <li>Go to <a href="https://whereby.com/information/embedded" target="_blank">whereby.com/embedded</a> and sign up or log in</li>
+        <li>Create an <strong>organisation</strong> (or use an existing one)</li>
+        <li>Go to <strong>Configure → API</strong></li>
+        <li>Click <strong>Generate API key</strong> — copy it immediately, it won't show again</li>
+        <li>Whereby charges per room-minute used. On the free plan you get a small monthly allowance — enough for testing.</li>
+      </ol>
+      <p>If this client won't use live sessions, leave the API key blank — the live session features will simply not appear.</p>
+    </div>
+
+    <div class="help-box">
+      <div class="help-box-title">📧 Setting up Resend (email notifications)</div>
+      <ol>
+        <li>Go to <a href="https://resend.com" target="_blank">resend.com</a> and create a free account</li>
+        <li>Add and verify your sending domain (e.g. <code>klaswerk.co.za</code>) under <strong>Domains</strong></li>
+        <li>Go to <strong>API Keys</strong> and create a new key</li>
+        <li>Then run these commands to set up the Edge Functions:</li>
+      </ol>
+
+      <div class="os-tabs">
+        <button class="os-tab active" onclick="switchOS(this,'resend-win')">Windows (PowerShell)</button>
+        <button class="os-tab" onclick="switchOS(this,'resend-mac')">Mac / Linux</button>
+      </div>
+      <div class="os-content active" id="resend-win">
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># Install Supabase CLI — only once</span>
+<span class="cmd">npm install -g supabase</span>
+
+<span class="comment"># Log in to Supabase CLI</span>
+<span class="cmd">supabase login</span>
+
+<span class="comment"># Link to your project (get the project ref from Supabase Settings → General)</span>
+<span class="cmd">supabase link --project-ref YOUR_PROJECT_REF</span>
+
+<span class="comment"># Set email secrets</span>
+<span class="cmd">supabase secrets set RESEND_API_KEY=re_xxxxxxxxxxxx</span>
+<span class="cmd">supabase secrets set APP_URL=https://yoursite.co.za</span>
+<span class="cmd">supabase secrets set FROM_EMAIL=noreply@yoursite.co.za</span>
+
+<span class="comment"># Deploy edge functions</span>
+<span class="cmd">supabase functions deploy send-certificate-email</span>
+<span class="cmd">supabase functions deploy send-session-reminder</span>
+<span class="cmd">supabase functions deploy send-payment-receipt</span></pre>
+        </div>
+      </div>
+      <div class="os-content" id="resend-mac">
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># Install Supabase CLI — only once</span>
+<span class="cmd">npm install -g supabase</span>
+
+<span class="comment"># Log in</span>
+<span class="cmd">supabase login</span>
+
+<span class="comment"># Link to your project</span>
+<span class="cmd">supabase link --project-ref YOUR_PROJECT_REF</span>
+
+<span class="comment"># Set secrets</span>
+<span class="cmd">supabase secrets set RESEND_API_KEY=re_xxxxxxxxxxxx</span>
+<span class="cmd">supabase secrets set APP_URL=https://yoursite.co.za</span>
+<span class="cmd">supabase secrets set FROM_EMAIL=noreply@yoursite.co.za</span>
+
+<span class="comment"># Deploy edge functions</span>
+<span class="cmd">supabase functions deploy send-certificate-email</span>
+<span class="cmd">supabase functions deploy send-session-reminder</span>
+<span class="cmd">supabase functions deploy send-payment-receipt</span></pre>
+        </div>
+      </div>
+
+      <p style="font-size:.8rem;color:var(--muted);margin-top:.75rem">
+        After deploying, go to Supabase Dashboard → <strong>Database → Webhooks</strong> and create:<br/>
+        • <code>certificates</code> INSERT → <code>send-certificate-email</code><br/>
+        • <code>payments</code> UPDATE (status=complete) → <code>send-payment-receipt</code>
+      </p>
+    </div>
+
+    <div class="help-box">
+      <div class="help-box-title">🎨 PWA Icons</div>
+      <p>For the "Add to Home Screen" feature to look right, create two PNG icon files and place them in <code>public/icons/</code>:</p>
+      <ul>
+        <li><code>icon-192.png</code> — 192×192 pixels</li>
+        <li><code>icon-512.png</code> — 512×512 pixels</li>
+      </ul>
+      <p>Suggested design: dark background <code>#110e09</code> with the client's logo or a gold ✦ mark in <code>#c9943c</code>. Free tools: <a href="https://www.canva.com" target="_blank">Canva</a> or <a href="https://www.figma.com" target="_blank">Figma</a>.</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field-group">
+      <label class="field-label" for="wb-key">Whereby API Key</label>
+      <span class="field-hint">From Whereby → Configure → API. Leave blank if not using live sessions.</span>
+      <input class="field-input" id="wb-key" type="password" placeholder="ey..."/>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="brand-name">Site Name</label>
+      <span class="field-hint">Displayed in the browser tab and header (e.g. KlasWerk, or the client's business name)</span>
+      <input class="field-input" id="brand-name" type="text" placeholder="KlasWerk" value="KlasWerk"/>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="brand-logo">Logo URL <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <span class="field-hint">Full URL to the client's logo image. Leave blank to use the text logo.</span>
+      <input class="field-input" id="brand-logo" type="url" placeholder="https://..."/>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="brand-favicon">Favicon URL <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <span class="field-hint">Full URL to favicon (.ico or .png). Leave blank to use the default.</span>
+      <input class="field-input" id="brand-favicon" type="url" placeholder="https://..."/>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-secondary" onclick="goStep(3)">← Back</button>
+      <button class="btn-primary" onclick="generateConfig()">Generate config.js →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STEP 5 — GENERATE CONFIG
+  ══════════════════════════════════════ -->
+  <div class="step-panel" id="step-5">
+    <div class="step-eyebrow">✦ &nbsp; Step 5 of 6</div>
+    <h1 class="step-title">Your config.js</h1>
+    <p class="step-subtitle">Copy everything below and replace the contents of <code>public/config.js</code> in the project folder. Then build and deploy.</p>
+
+    <div class="help-box">
+      <div class="help-box-title">📋 How to use this file</div>
+      <ol>
+        <li>Click <strong>Copy to Clipboard</strong> below</li>
+        <li>Open <code>public/config.js</code> in your code editor</li>
+        <li>Select all (<kbd>Ctrl+A</kbd> / <kbd>Cmd+A</kbd>) and paste</li>
+        <li>Save the file</li>
+      </ol>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+      <span style="font-family:'Syne Mono',monospace;font-size:.62rem;color:var(--gold-dk);letter-spacing:.2em;text-transform:uppercase">public/config.js</span>
+      <button class="code-copy" id="config-copy-btn" onclick="copyConfig()" style="position:static">Copy to Clipboard</button>
+    </div>
+    <div class="config-output" id="config-output"></div>
+
+    <div class="divider"></div>
+
+    <div class="help-box">
+      <div class="help-box-title">🚀 Build and deploy the frontend</div>
+
+      <div class="os-tabs">
+        <button class="os-tab active" onclick="switchOS(this,'deploy-win')">Windows (PowerShell)</button>
+        <button class="os-tab" onclick="switchOS(this,'deploy-mac')">Mac / Linux</button>
+      </div>
+      <div class="os-content active" id="deploy-win">
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># From the project root folder</span>
+<span class="cmd">npm install</span>
+<span class="cmd">npm run build</span>
+
+<span class="comment"># The built site is in the /dist folder</span>
+<span class="comment"># Deploy to Cloudflare Pages:</span>
+<span class="cmd">npx wrangler pages deploy dist --project-name klaswerk-clientname</span>
+
+<span class="comment"># Or drag the /dist folder to:</span>
+<span class="comment"># cloudflare.com → Pages → Upload assets</span></pre>
+        </div>
+      </div>
+      <div class="os-content" id="deploy-mac">
+        <div class="code-block">
+          <button class="code-copy" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># From the project root folder</span>
+<span class="cmd">npm install</span>
+<span class="cmd">npm run build</span>
+
+<span class="comment"># Deploy to Cloudflare Pages:</span>
+<span class="cmd">npx wrangler pages deploy dist --project-name klaswerk-clientname</span>
+
+<span class="comment"># Or drag /dist to Cloudflare Pages dashboard</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-box">
+      <div class="help-box-title">✅ Deployment checklist</div>
+      <ul class="checklist" id="deploy-checklist">
+        <li><span class="check-icon">○</span><div><strong>Migrations run</strong> — 001 through 004 SQL files executed in Supabase SQL Editor in order</div></li>
+        <li><span class="check-icon">○</span><div><strong>Auth email templates</strong> — 3 branded HTML files pasted into Supabase → Authentication → Email Templates</div></li>
+        <li><span class="check-icon">○</span><div><strong>Cloudflare Worker deployed</strong> — <code>wrangler deploy</code> run with KV namespace ID in wrangler.toml</div></li>
+        <li><span class="check-icon">○</span><div><strong>Worker secrets set</strong> — SUPABASE_URL, SUPABASE_SERVICE_KEY, PAYFAST_PASSPHRASE, PAYFAST_MERCHANT_ID, TEST_MODE</div></li>
+        <li><span class="check-icon">○</span><div><strong>Edge functions deployed</strong> — send-certificate-email, send-session-reminder, send-payment-receipt</div></li>
+        <li><span class="check-icon">○</span><div><strong>DB webhooks configured</strong> — in Supabase → Database → Webhooks for certificates and payments tables</div></li>
+        <li><span class="check-icon">○</span><div><strong>config.js updated</strong> — generated above, saved to public/config.js</div></li>
+        <li><span class="check-icon">○</span><div><strong>Frontend built and deployed</strong> — <code>npm run build</code> + uploaded to Cloudflare Pages or Vercel</div></li>
+        <li><span class="check-icon">○</span><div><strong>PWA icons added</strong> — icon-192.png and icon-512.png in public/icons/</div></li>
+        <li><span class="check-icon">○</span><div><strong>Setup page deleted</strong> — remove or rename public/setup.html after this wizard is done</div></li>
+      </ul>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-secondary" onclick="goStep(4)">← Back</button>
+      <button class="btn-primary" onclick="goStep(6)">Next: Save Client Record →</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STEP 6 — CLIENT RECORD
+  ══════════════════════════════════════ -->
+  <div class="step-panel" id="step-6">
+    <div class="step-eyebrow">✦ &nbsp; Step 6 of 6</div>
+    <h1 class="step-title">Save Client Record</h1>
+    <p class="step-subtitle">Save this client's details to your MD Works registry for future maintenance. You'll be able to look up any client's Supabase project, domain, and contact at any time.</p>
+
+    <div class="help-box">
+      <div class="help-box-title">🗄 First time? Set up your MD Works Registry</div>
+      <p>The registry uses your own personal Supabase project — separate from any client project. You only do this once.</p>
+      <ol>
+        <li>Create a new Supabase project called <strong>mdworks-registry</strong> at <a href="https://supabase.com" target="_blank">supabase.com</a></li>
+        <li>In the SQL Editor, run this to create the clients table:</li>
+      </ol>
+      <div class="code-block">
+        <button class="code-copy" onclick="copyCode(this)">copy</button>
+        <pre><span class="cmd">CREATE TABLE public.kw_clients (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at      TIMESTAMPTZ DEFAULT NOW(),
+  client_name     TEXT NOT NULL,
+  trading_name    TEXT,
+  contact_name    TEXT,
+  contact_email   TEXT,
+  contact_phone   TEXT,
+  domain          TEXT,
+  supabase_url    TEXT,
+  deploy_date     DATE DEFAULT CURRENT_DATE,
+  payfast_live    BOOLEAN DEFAULT FALSE,
+  whereby_active  BOOLEAN DEFAULT FALSE,
+  notes           TEXT,
+  features        JSONB DEFAULT '{}'
+);
+
+ALTER TABLE public.kw_clients ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Service role full access"
+  ON public.kw_clients
+  USING (TRUE)
+  WITH CHECK (TRUE);</span></pre>
+      </div>
+      <ol start="3">
+        <li>From Supabase Settings → API, copy your <strong>Registry Project URL</strong> and <strong>service_role key</strong> and paste them below</li>
+      </ol>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2 style="font-family:'Cinzel',serif;font-size:1rem;color:var(--gold-lt);margin-bottom:1.25rem;font-weight:600">Registry Connection</h2>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label" for="reg-url">Registry Supabase URL</label>
+        <span class="field-hint">Your personal mdworks-registry project URL</span>
+        <input class="field-input" id="reg-url" type="url" placeholder="https://xxxx.supabase.co"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="reg-key">Registry Service Role Key</label>
+        <span class="field-hint">service_role key from your registry project</span>
+        <input class="field-input" id="reg-key" type="password" placeholder="eyJ..."/>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2 style="font-family:'Cinzel',serif;font-size:1rem;color:var(--gold-lt);margin-bottom:1.25rem;font-weight:600">Client Details</h2>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label" for="cl-name">Client Name</label>
+        <span class="field-hint">Legal / business name</span>
+        <input class="field-input" id="cl-name" type="text" placeholder="Acme Training (Pty) Ltd"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="cl-trading">Trading Name</label>
+        <span class="field-hint">Name displayed on the site</span>
+        <input class="field-input" id="cl-trading" type="text" placeholder="Acme Training"/>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label" for="cl-contact">Contact Person</label>
+        <input class="field-input" id="cl-contact" type="text" placeholder="Jane Smith"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="cl-email">Contact Email</label>
+        <input class="field-input" id="cl-email" type="email" placeholder="jane@acmetraining.co.za"/>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label" for="cl-phone">Contact Phone</label>
+        <input class="field-input" id="cl-phone" type="tel" placeholder="082 123 4567"/>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="cl-domain">Live Domain</label>
+        <span class="field-hint">Where the site is deployed</span>
+        <input class="field-input" id="cl-domain" type="url" placeholder="https://training.acme.co.za"/>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" for="cl-notes">Notes</label>
+      <span class="field-hint">Anything useful for future maintenance — custom config, special requirements, etc.</span>
+      <textarea class="field-input" id="cl-notes" rows="3" placeholder="e.g. Client uses free courses only, PayFast in test mode until launch..."></textarea>
+    </div>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
+      <div class="toggle-wrap" style="flex:1;min-width:200px" onclick="toggleFeature(this,'payfast-live')">
+        <div>
+          <span class="toggle-label">PayFast — Live Mode</span>
+          <span class="toggle-sublabel">Paid courses active</span>
+        </div>
+        <div class="toggle" data-feature="payfast-live"></div>
+      </div>
+      <div class="toggle-wrap" style="flex:1;min-width:200px" onclick="toggleFeature(this,'whereby-active')">
+        <div>
+          <span class="toggle-label">Whereby — Active</span>
+          <span class="toggle-sublabel">Live sessions enabled</span>
+        </div>
+        <div class="toggle" data-feature="whereby-active"></div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="save-btn" onclick="saveClientRecord()" style="width:100%">
+      ✦ &nbsp; Save Client Record to MD Works Registry
+    </button>
+    <div class="test-result" id="save-result" style="margin-top:.75rem"></div>
+
+    <div class="step-nav">
+      <button class="btn-secondary" onclick="goStep(5)">← Back</button>
+      <button class="btn-primary" onclick="showComplete()" style="background:linear-gradient(135deg,#2c6b4a,var(--success))">
+        ✓ &nbsp; Complete Setup
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       STEP 7 — COMPLETE
+  ══════════════════════════════════════ -->
+  <div class="step-panel" id="step-complete">
+    <div style="text-align:center;padding:3rem 1rem">
+      <div style="font-size:2.5rem;margin-bottom:1rem">✦</div>
+      <div class="step-eyebrow" style="justify-content:center;margin-bottom:.75rem">MD Works · KlasWerk</div>
+      <h1 class="step-title" style="font-size:2rem;margin-bottom:.75rem">Setup Complete</h1>
+      <p class="step-subtitle" style="max-width:480px;margin:0 auto 2rem">
+        The platform is configured and the client record is saved. Remember to delete this setup.html file from the server.
+      </p>
+
+      <div style="display:inline-flex;flex-direction:column;gap:.75rem;text-align:left;background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:2rem">
+        <div style="font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:.25rem">Final steps</div>
+        <div style="font-family:'Raleway',sans-serif;font-size:.85rem;color:rgba(240,230,206,.8)">
+          1. Delete <code style="font-family:'Syne Mono',monospace;color:var(--gold)">public/setup.html</code> from the server<br/>
+          2. Test a login, a course enrolment, and a payment in test mode<br/>
+          3. Switch PayFast to live mode when ready to launch<br/>
+          4. Send the client their login link and a short how-to video
+        </div>
+      </div>
+
+      <div style="font-family:'Syne Mono',monospace;font-size:.55rem;letter-spacing:.25em;color:var(--faint)">
+        ✦ MD WORKS · MORNEY DEETLEFS · SOUTH AFRICA ✦
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="brand-mark">✦ &nbsp; MD Works &nbsp; ✦</div>
+  <div class="sub">Morney Deetlefs · South Africa · Builder of useful things for real people</div>
+</footer>
+
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentStep   = 1
+let pfLiveMode    = false
+let pfLiveFeature = false
+let wherebyActive = false
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+
+function goStep(n) {
+  // Hide all steps
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'))
+
+  currentStep = n
+
+  const panel = document.getElementById(`step-${n}`) || document.getElementById('step-complete')
+  if (panel) panel.classList.add('active')
+
+  const dot = document.getElementById(`dot-${n}`)
+  if (dot) dot.classList.add('active')
+
+  // Mark previous dots as done
+  for (let i = 1; i < n && i <= 6; i++) {
+    const d = document.getElementById(`dot-${i}`)
+    if (d) { d.classList.remove('active'); d.classList.add('done'); d.textContent = '✓' }
+  }
+
+  updateProgress(n)
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function showComplete() {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.step-dot').forEach(d => { d.classList.remove('active'); d.classList.add('done'); d.textContent = '✓' })
+  document.getElementById('step-complete').classList.add('active')
+  updateProgress(6)
+}
+
+function updateProgress(step) {
+  const pct  = Math.round(((step - 1) / 5) * 100)
+  const fill = document.getElementById('progressFill')
+  const lbl  = document.getElementById('progressLabel')
+  const cnt  = document.getElementById('progressPct')
+  if (fill) fill.style.width = pct + '%'
+  if (lbl)  lbl.textContent  = step <= 6 ? `Step ${step} of 6` : 'Complete'
+  if (cnt)  cnt.textContent  = pct + '%'
+}
+
+// ── OS Tab switching ──────────────────────────────────────────────────────────
+
+function switchOS(btn, targetId) {
+  const parent  = btn.closest('.help-box') || btn.closest('.step-panel')
+  const tabs    = btn.parentElement.querySelectorAll('.os-tab')
+  const sibling = btn.parentElement
+
+  tabs.forEach(t => t.classList.remove('active'))
+  btn.classList.add('active')
+
+  // Hide all os-content siblings of the os-tabs div
+  let el = sibling.nextElementSibling
+  while (el && el.classList.contains('os-content')) {
+    el.classList.remove('active')
+    el = el.nextElementSibling
+  }
+
+  const target = document.getElementById(targetId)
+  if (target) target.classList.add('active')
+}
+
+// ── Copy code blocks ──────────────────────────────────────────────────────────
+
+function copyCode(btn) {
+  const block = btn.closest('.code-block').querySelector('pre')
+  const text  = block.innerText || block.textContent
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied ✓'
+    btn.classList.add('copied')
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied') }, 2000)
+  })
+}
+
+// ── Supabase connection test ──────────────────────────────────────────────────
+
+async function testSupabase() {
+  const url    = document.getElementById('sb-url').value.trim()
+  const anon   = document.getElementById('sb-anon').value.trim()
+  const result = document.getElementById('sb-test-result')
+
+  if (!url || !anon) { showResult(result, 'fail', 'Enter the URL and anon key first'); return }
+
+  result.style.display = 'block'
+  result.className     = 'test-result'
+  result.textContent   = 'Testing connection…'
+
+  try {
+    const res  = await fetch(`${url}/rest/v1/`, {
+      headers: { apikey: anon, Authorization: `Bearer ${anon}` }
+    })
+    if (res.ok || res.status === 400) {
+      showResult(result, 'ok', '✓ Connection successful — Supabase is reachable')
+    } else {
+      showResult(result, 'fail', `✗ Got status ${res.status} — check your URL and key`)
+    }
+  } catch (e) {
+    showResult(result, 'fail', '✗ Could not reach Supabase — check the URL')
+  }
+}
+
+function showResult(el, type, msg) {
+  el.style.display = 'block'
+  el.className     = `test-result ${type}`
+  el.textContent   = msg
+}
+
+// ── PayFast mode toggle ───────────────────────────────────────────────────────
+
+function togglePayfastMode(wrap) {
+  pfLiveMode = !pfLiveMode
+  const toggle = document.getElementById('pf-mode-toggle')
+  const hint   = document.getElementById('pf-mode-hint')
+  if (pfLiveMode) {
+    toggle.classList.add('on')
+    hint.textContent = 'Live payments active — real money will be charged'
+  } else {
+    toggle.classList.remove('on')
+    hint.textContent = 'Sandbox mode — use PayFast test credentials'
+  }
+}
+
+// ── Feature toggles (step 6) ─────────────────────────────────────────────────
+
+function toggleFeature(wrap, feature) {
+  const toggle = wrap.querySelector('.toggle')
+  toggle.classList.toggle('on')
+  if (feature === 'payfast-live') pfLiveFeature = toggle.classList.contains('on')
+  if (feature === 'whereby-active') wherebyActive = toggle.classList.contains('on')
+}
+
+// ── Generate config.js ────────────────────────────────────────────────────────
+
+function generateConfig() {
+  const sbUrl       = document.getElementById('sb-url').value.trim()
+  const sbAnon      = document.getElementById('sb-anon').value.trim()
+  const pfId        = document.getElementById('pf-merchant-id').value.trim()
+  const pfKey       = document.getElementById('pf-merchant-key').value.trim()
+  const pfPass      = document.getElementById('pf-passphrase').value.trim()
+  const pfNotify    = document.getElementById('pf-notify-url').value.trim()
+  const pfSite      = document.getElementById('pf-site-url').value.trim() || 'https://yoursite.co.za'
+  const wbKey       = document.getElementById('wb-key').value.trim()
+  const brandName   = document.getElementById('brand-name').value.trim() || 'KlasWerk'
+  const brandLogo   = document.getElementById('brand-logo').value.trim()
+  const brandFavico = document.getElementById('brand-favicon').value.trim()
+
+  const returnUrl = pfSite.replace(/\/$/, '') + '/payment/return'
+  const cancelUrl = pfSite.replace(/\/$/, '') + '/payment/cancel'
+
+  const config = `// ═══════════════════════════════════════════════════
+// KlasWerk — Client Configuration
+// ───────────────────────────────────────────────────
+// Generated: ${new Date().toLocaleDateString('en-ZA', { year: 'numeric', month: 'long', day: 'numeric' })}
+// MD Works · Morney Deetlefs · South Africa
+//
+// SECURITY: Do not commit this file to a public
+// repository. Add public/config.js to .gitignore.
+// ═══════════════════════════════════════════════════
+
+window.KLASWERK_CONFIG = {
+
+  supabase: {
+    url:     '${sbUrl || 'https://xxxx.supabase.co'}',
+    anonKey: '${sbAnon || 'YOUR_ANON_KEY'}',
+  },
+
+  payfast: {
+    merchantId:  '${pfId || 'YOUR_MERCHANT_ID'}',
+    merchantKey: '${pfKey || 'YOUR_MERCHANT_KEY'}',
+    passphrase:  '${pfPass || 'YOUR_PASSPHRASE'}',
+    testMode:    ${pfLiveMode ? 'false' : 'true'},
+    notifyUrl:   '${pfNotify || 'https://your-worker.workers.dev/payfast-webhook'}',
+    returnUrl:   '${returnUrl}',
+    cancelUrl:   '${cancelUrl}',
+  },
+
+  whereby: {
+    apiKey: '${wbKey || ''}',
+  },
+
+  brand: {
+    name:       '${brandName}',
+    logoUrl:    ${brandLogo ? `'${brandLogo}'` : 'null'},
+    faviconUrl: ${brandFavico ? `'${brandFavico}'` : 'null'},
+  },
+
+}`
+
+  document.getElementById('config-output').textContent = config
+  goStep(5)
+}
+
+// ── Copy config to clipboard ──────────────────────────────────────────────────
+
+function copyConfig() {
+  const text = document.getElementById('config-output').textContent
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('config-copy-btn')
+    btn.textContent = '✓ Copied!'
+    btn.classList.add('copied')
+    setTimeout(() => { btn.textContent = 'Copy to Clipboard'; btn.classList.remove('copied') }, 2500)
+    showToast('config.js copied to clipboard', 'success')
+  })
+}
+
+// ── Save client record ────────────────────────────────────────────────────────
+
+async function saveClientRecord() {
+  const regUrl  = document.getElementById('reg-url').value.trim()
+  const regKey  = document.getElementById('reg-key').value.trim()
+  const name    = document.getElementById('cl-name').value.trim()
+  const trading = document.getElementById('cl-trading').value.trim()
+  const contact = document.getElementById('cl-contact').value.trim()
+  const email   = document.getElementById('cl-email').value.trim()
+  const phone   = document.getElementById('cl-phone').value.trim()
+  const domain  = document.getElementById('cl-domain').value.trim()
+  const notes   = document.getElementById('cl-notes').value.trim()
+  const sbUrl   = document.getElementById('sb-url').value.trim()
+  const result  = document.getElementById('save-result')
+
+  if (!regUrl || !regKey) {
+    showResult(result, 'fail', 'Enter your MD Works Registry URL and service role key')
+    return
+  }
+  if (!name) {
+    showResult(result, 'fail', 'Client name is required')
+    return
+  }
+
+  const btn = document.getElementById('save-btn')
+  btn.disabled   = true
+  btn.textContent = 'Saving…'
+
+  const payload = {
+    client_name:    name,
+    trading_name:   trading || null,
+    contact_name:   contact || null,
+    contact_email:  email   || null,
+    contact_phone:  phone   || null,
+    domain:         domain  || null,
+    supabase_url:   sbUrl   || null,
+    deploy_date:    new Date().toISOString().split('T')[0],
+    payfast_live:   pfLiveFeature,
+    whereby_active: wherebyActive,
+    notes:          notes   || null,
+    features: {
+      payfast_live:    pfLiveFeature,
+      whereby_active:  wherebyActive,
+    },
+  }
+
+  try {
+    const res = await fetch(`${regUrl}/rest/v1/kw_clients`, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'apikey':        regKey,
+        'Authorization': `Bearer ${regKey}`,
+        'Prefer':        'return=minimal',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (res.ok || res.status === 201) {
+      showResult(result, 'ok', `✓ Client record saved — ${name} is in the MD Works Registry`)
+      showToast('Client saved to registry ✓', 'success')
+      btn.textContent = '✓ Saved'
+    } else {
+      const text = await res.text()
+      showResult(result, 'fail', `✗ Error ${res.status}: ${text}`)
+      btn.disabled    = false
+      btn.textContent = '✦  Save Client Record to MD Works Registry'
+    }
+  } catch (e) {
+    showResult(result, 'fail', `✗ Could not reach registry: ${e.message}`)
+    btn.disabled    = false
+    btn.textContent = '✦  Save Client Record to MD Works Registry'
+  }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.className   = `toast ${type} show`
+  setTimeout(() => t.classList.remove('show'), 3000)
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+updateProgress(1)
+</script>
+</body>
+</html>

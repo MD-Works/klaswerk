@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Favicon — overridden by config.brand.faviconUrl at runtime -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" id="kw-favicon" />
+
+    <!-- Google Fonts — MD Works typography stack -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Raleway:wght@300;400;500&family=Syne:wght@400;500;600;700&family=Syne+Mono&display=swap"
+      rel="stylesheet"
+    />
+
+    <!--
+      ┌─────────────────────────────────────────────────────────┐
+      │  CLIENT CONFIG — loaded before React bundle             │
+      │  Place the generated config.js from the Setup Wizard    │
+      │  into /public/config.js for each client deployment.     │
+      │  The app reads window.KLASWERK_CONFIG at startup.       │
+      └─────────────────────────────────────────────────────────┘
+    -->
+    <script src="/config.js"></script>
+
+    <title>KlasWerk</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

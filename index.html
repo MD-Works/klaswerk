@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- PWA meta -->
+    <meta name="theme-color" content="#c9943c" />
+    <meta name="description" content="KlasWerk — zero-cost training platform by MD Works" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="KlasWerk" />
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Favicon — overridden by config.brand.faviconUrl at runtime -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" id="kw-favicon" />
+    <!-- Apple touch icon (uses same file; replace with /icons/icon-192.png when available) -->
+    <link rel="apple-touch-icon" href="/favicon.ico" />
+
+    <!-- Google Fonts — MD Works typography stack -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Raleway:wght@300;400;500&family=Syne:wght@400;500;600;700&family=Syne+Mono&display=swap"
+      rel="stylesheet"
+    />
+
+    <!--
+      ┌─────────────────────────────────────────────────────────┐
+      │  CLIENT CONFIG — loaded before React bundle             │
+      │  Place the generated config.js from the Setup Wizard    │
+      │  into /public/config.js for each client deployment.     │
+      │  The app reads window.KLASWERK_CONFIG at startup.       │
+      └─────────────────────────────────────────────────────────┘
+    -->
+    <script src="/config.js"></script>
+
+    <!--
+      ┌─────────────────────────────────────────────────────────┐
+      │  THEME BOOTSTRAP — runs before React bundle             │
+      │  Applies saved theme (or system preference) to <html>   │
+      │  before first paint to prevent flash of wrong theme.    │
+      └─────────────────────────────────────────────────────────┘
+    -->
+    <script>
+      (function () {
+        var saved = null;
+        try { saved = localStorage.getItem('kw-theme'); } catch (e) {}
+        var valid = ['dark', 'light', 'high-contrast'];
+        var theme = (saved && valid.indexOf(saved) !== -1)
+          ? saved
+          : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+
+    <title>KlasWerk</title>
+
+    <!-- Register service worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/sw.js')
+            .then(reg => console.log('[KlasWerk SW] registered:', reg.scope))
+            .catch(err => console.warn('[KlasWerk SW] registration failed:', err))
+        })
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

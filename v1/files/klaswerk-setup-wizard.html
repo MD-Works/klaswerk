@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KlasWerk — Client Setup Wizard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Raleway:wght@300;400;500&family=Syne:wght@400;500;600;700&family=Syne+Mono&display=swap" rel="stylesheet"/>
+<script>
+  // Apply saved theme or system preference BEFORE paint — prevents flash
+  const saved = localStorage.getItem('kw-theme');
+  const system = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', saved || system);
+</script>
+<style>
+/* ══════════════════════════════════════════
+   MD WORKS — BRAND TOKENS
+   KlasWerk Client Setup Wizard
+══════════════════════════════════════════ */
+:root {
+  --md-black:      #0a0906;
+  --md-dark:       #110e09;
+  --md-surface:    #1a1610;
+  --md-panel:      #211c14;
+  --md-border:     #2c2619;
+  --md-border-lt:  #3d3526;
+  --md-gold-dk:    #7a5815;
+  --md-gold:       #c9943c;
+  --md-gold-lt:    #e8c87a;
+  --md-gold-pale:  #f5e4bb;
+  --md-gold-glow:  rgba(201,148,60,.12);
+  --md-cream:      #f0e6ce;
+  --md-muted:      #7a6d58;
+  --md-success:    #4caf7a;
+  --md-danger:     #c94c4c;
+  --md-radius:     4px;
+  --md-radius-lg:  8px;
+}
+
+/* LIGHT MODE — warm cream base, gold anchor unchanged */
+:root[data-theme="light"] {
+  --md-black:      #f5f3ed;
+  --md-dark:       #faf8f2;
+  --md-surface:    #f0ede5;
+  --md-panel:      #ebe8dc;
+  --md-border:     #dfd9cd;
+  --md-border-lt:  #cdc4b0;
+  --md-gold-dk:    #7a5815;
+  --md-gold:       #c9943c;
+  --md-gold-lt:    #c9943c;
+  --md-gold-pale:  #e8d4b8;
+  --md-gold-glow:  rgba(201,148,60,.08);
+  --md-cream:      #2d2620;
+  --md-muted:      #6b6456;
+  --md-success:    #3d8b63;
+  --md-danger:     #a84848;
+}
+
+html { transition: background-color .3s, color .3s; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed;
+  top: 1rem; right: 1rem;
+  z-index: 100;
+  width: 44px; height: 44px;
+  background: var(--md-surface);
+  border: 1px solid var(--md-border);
+  border-radius: var(--md-radius-lg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-gold);
+  transition: all .3s;
+}
+.theme-toggle:hover {
+  border-color: var(--md-gold-dk);
+  color: var(--md-gold-lt);
+}
+.theme-toggle svg { width: 20px; height: 20px; }
+
+body {
+  font-family: 'Raleway', sans-serif;
+  background: var(--md-dark);
+  color: var(--md-cream);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grain texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Ambient glow */
+body::after {
+  content: '';
+  position: fixed;
+  top: -20vh; left: 50%;
+  transform: translateX(-50%);
+  width: 80vw; height: 60vh;
+  background: radial-gradient(ellipse, rgba(201,148,60,.06) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+.wrapper {
+  position: relative; z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.brand-mark {
+  font-family: 'Syne Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  color: var(--md-gold-dk);
+  margin-bottom: 1.2rem;
+}
+
+.brand-name {
+  font-family: 'Cinzel', serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--md-gold-lt) 0%, var(--md-gold) 50%, var(--md-gold-dk) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: .5rem;
+}
+
+.brand-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--md-muted);
+  font-weight: 300;
+}
+
+/* ── Progress Bar ── */
+.progress-wrap {
+  margin-bottom: 2.5rem;
+}
+
+.progress-steps {
+  display: flex;
+  gap: 0;
+  margin-bottom: .75rem;
+}
+
+.step-dot {
+  flex: 1;
+  height: 3px;
+  background: var(--md-border);
+  position: relative;
+  transition: background .4s;
+}
+.step-dot::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0;
+  width: 0%; height: 100%;
+  background: linear-gradient(90deg, var(--md-gold-dk), var(--md-gold));
+  transition: width .4s ease;
+}
+.step-dot.done::before { width: 100%; }
+.step-dot.active::before { width: 50%; }
+
+.step-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.step-label {
+  font-family: 'Syne Mono', monospace;
+  font-size: .55rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--md-border-lt);
+  transition: color .3s;
+}
+.step-label.active { color: var(--md-gold); }
+.step-label.done   { color: var(--md-gold-dk); }
+
+/* ── Card ── */
+.card {
+  background: var(--md-surface);
+  border: 1px solid var(--md-border);
+  border-radius: var(--md-radius-lg);
+  padding: 2rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--md-gold-dk), transparent);
+}
+
+.step-panel {
+  display: none;
+  animation: fadeIn .35s ease;
+}
+.step-panel.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Section heading ── */
+.section-eyebrow {
+  font-family: 'Syne Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--md-gold-dk);
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin-bottom: .6rem;
+}
+.section-eyebrow::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--md-border-lt);
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--md-gold-lt);
+  margin-bottom: .4rem;
+}
+
+.section-desc {
+  font-family: 'Raleway', sans-serif;
+  font-size: .82rem;
+  color: var(--md-muted);
+  margin-bottom: 1.8rem;
+  line-height: 1.6;
+}
+
+/* ── Form fields ── */
+.field-group {
+  margin-bottom: 1.4rem;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+label {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--md-muted);
+  margin-bottom: .4rem;
+}
+
+label span {
+  color: var(--md-gold-dk);
+  font-size: .65rem;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-family: 'Raleway', sans-serif;
+  margin-left: .3rem;
+}
+
+input, select {
+  width: 100%;
+  background: var(--md-panel);
+  border: 1px solid var(--md-border);
+  border-radius: var(--md-radius);
+  color: var(--md-cream);
+  font-family: 'Syne Mono', monospace;
+  font-size: .8rem;
+  padding: .65rem .9rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+}
+
+input::placeholder { color: var(--md-border-lt); }
+
+input:focus, select:focus {
+  border-color: var(--md-gold-dk);
+  box-shadow: 0 0 0 3px rgba(201,148,60,.08);
+}
+
+input.valid { border-color: var(--md-success); }
+input.error { border-color: var(--md-danger); }
+
+.field-hint {
+  font-size: .7rem;
+  color: var(--md-border-lt);
+  margin-top: .35rem;
+  font-family: 'Raleway', sans-serif;
+  line-height: 1.5;
+}
+
+/* Color input */
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.color-row input[type="color"] {
+  width: 44px;
+  height: 36px;
+  padding: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.color-row input[type="text"] {
+  flex: 1;
+}
+
+/* Toggle */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .7rem .9rem;
+  background: var(--md-panel);
+  border: 1px solid var(--md-border);
+  border-radius: var(--md-radius);
+  margin-bottom: .8rem;
+}
+
+.toggle-label {
+  font-family: 'Raleway', sans-serif;
+  font-size: .82rem;
+  color: var(--md-cream);
+}
+.toggle-label small {
+  display: block;
+  font-size: .72rem;
+  color: var(--md-muted);
+  margin-top: .15rem;
+}
+
+.toggle {
+  position: relative;
+  width: 42px; height: 22px;
+  flex-shrink: 0;
+}
+.toggle input { display: none; }
+.toggle-track {
+  position: absolute; inset: 0;
+  background: var(--md-border);
+  border-radius: 11px;
+  cursor: pointer;
+  transition: background .25s;
+}
+.toggle input:checked + .toggle-track {
+  background: linear-gradient(90deg, var(--md-gold-dk), var(--md-gold));
+}
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: var(--md-cream);
+  border-radius: 50%;
+  transition: transform .25s;
+}
+.toggle input:checked + .toggle-track::after {
+  transform: translateX(20px);
+}
+
+/* ── Divider ── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--md-border-lt), transparent);
+  margin: 1.5rem 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.divider::after {
+  content: '✦';
+  position: absolute;
+  font-size: .65rem;
+  color: var(--md-gold-dk);
+  background: var(--md-surface);
+  padding: 0 .8rem;
+}
+
+/* ── Navigation buttons ── */
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.btn-primary {
+  padding: .75rem 1.8rem;
+  background: linear-gradient(135deg, var(--md-gold-dk), var(--md-gold));
+  color: var(--md-black);
+  border: none;
+  border-radius: var(--md-radius);
+  font-family: 'Cinzel', serif;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  cursor: pointer;
+  transition: opacity .2s, transform .1s;
+}
+.btn-primary:hover { opacity: .9; }
+.btn-primary:active { transform: scale(.98); }
+
+.btn-secondary {
+  padding: .7rem 1.4rem;
+  background: transparent;
+  border: 1px solid var(--md-border-lt);
+  color: var(--md-muted);
+  border-radius: var(--md-radius);
+  font-family: 'Raleway', sans-serif;
+  font-size: .82rem;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-secondary:hover {
+  color: var(--md-gold-lt);
+  border-color: var(--md-gold-dk);
+}
+
+.step-counter {
+  font-family: 'Syne Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .15em;
+  color: var(--md-border-lt);
+}
+
+/* ── Preview / Output ── */
+.preview-card {
+  background: var(--md-panel);
+  border: 1px solid var(--md-border);
+  border-radius: var(--md-radius);
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 1.5rem;
+  font-family: 'Syne Mono', monospace;
+  font-size: .72rem;
+  line-height: 1.7;
+  color: var(--md-muted);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.preview-card .kw  { color: var(--md-gold-dk); }
+.preview-card .str { color: var(--md-gold-lt); }
+.preview-card .cmt { color: var(--md-border-lt); }
+.preview-card .key { color: var(--md-cream); }
+
+.download-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-download {
+  flex: 1;
+  padding: .85rem 1.2rem;
+  background: linear-gradient(135deg, var(--md-gold-dk), var(--md-gold));
+  color: var(--md-black);
+  border: none;
+  border-radius: var(--md-radius);
+  font-family: 'Cinzel', serif;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  cursor: pointer;
+  transition: opacity .2s;
+  text-align: center;
+}
+.btn-download:hover { opacity: .9; }
+
+.btn-copy {
+  flex: 1;
+  padding: .85rem 1.2rem;
+  background: transparent;
+  border: 1px solid var(--md-border-lt);
+  color: var(--md-muted);
+  border-radius: var(--md-radius);
+  font-family: 'Raleway', sans-serif;
+  font-size: .82rem;
+  cursor: pointer;
+  transition: all .2s;
+  text-align: center;
+}
+.btn-copy:hover {
+  color: var(--md-gold-lt);
+  border-color: var(--md-gold-dk);
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 1.5rem; left: 50%; z-index: 300;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--md-surface);
+  border-radius: 50px;
+  padding: .65rem 1.4rem;
+  font-size: .8rem;
+  letter-spacing: .05em;
+  font-family: 'Raleway', sans-serif;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+  white-space: nowrap;
+  border: 1px solid var(--md-border);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--md-success); color: var(--md-success); }
+
+/* ── Summary list ── */
+.summary-grid {
+  display: grid;
+  gap: .6rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: .5rem .8rem;
+  background: var(--md-panel);
+  border-radius: var(--md-radius);
+  border: 1px solid var(--md-border);
+}
+
+.summary-key {
+  font-family: 'Syne Mono', monospace;
+  font-size: .68rem;
+  color: var(--md-muted);
+  letter-spacing: .05em;
+}
+
+.summary-val {
+  font-family: 'Syne Mono', monospace;
+  font-size: .72rem;
+  color: var(--md-gold-lt);
+  max-width: 55%;
+  text-align: right;
+  word-break: break-all;
+}
+
+.summary-val.masked { color: var(--md-border-lt); letter-spacing: .1em; }
+
+/* ── Color swatch ── */
+.swatch-row {
+  display: flex;
+  gap: .5rem;
+  margin-top: .8rem;
+  flex-wrap: wrap;
+}
+
+.swatch {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .3rem .6rem;
+  background: var(--md-panel);
+  border: 1px solid var(--md-border);
+  border-radius: 20px;
+}
+
+.swatch-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.swatch-name {
+  font-family: 'Syne Mono', monospace;
+  font-size: .6rem;
+  color: var(--md-muted);
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2.5rem;
+  border-top: 1px solid var(--md-border);
+  margin-top: 3rem;
+  position: relative; z-index: 1;
+}
+
+.footer-brand {
+  font-family: 'Cinzel', serif;
+  font-size: .72rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--md-gold-dk);
+  margin-bottom: .4rem;
+}
+
+.footer-sub {
+  font-family: 'Syne Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .12em;
+  color: var(--md-border-lt);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--md-black); }
+::-webkit-scrollbar-thumb { background: var(--md-border-lt); border-radius: 2px; }
+
+@media (max-width: 560px) {
+  .field-row { grid-template-columns: 1fr; }
+  .card { padding: 1.4rem 1.2rem; }
+  .brand-name { font-size: 1.8rem; }
+  .download-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
+  <svg class="sun-icon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="5"></circle>
+    <line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+    <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+  </svg>
+  <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="brand-mark">✦ &nbsp; MD Works &nbsp; ✦</div>
+    <div class="brand-name">KlasWerk</div>
+    <div class="brand-sub">Client Setup Wizard — generate a config.js in minutes</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-steps" id="progressDots"></div>
+    <div class="step-labels" id="stepLabels"></div>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+
+    <!-- STEP 1: Client Info -->
+    <div class="step-panel active" id="step-0">
+      <div class="section-eyebrow">Step 1 of 6</div>
+      <div class="section-title">Client Information</div>
+      <div class="section-desc">Basic details about the training organisation using this KlasWerk instance.</div>
+
+      <div class="field-group">
+        <label>Platform Name <span>shown in browser tab & emails</span></label>
+        <input type="text" id="appName" placeholder="e.g. Acme Training Academy" />
+        <div class="field-hint">This is the name students and trainers will see throughout the platform.</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label>Client Short Code <span>used in URLs & IDs</span></label>
+          <input type="text" id="clientCode" placeholder="e.g. acme" maxlength="12" />
+          <div class="field-hint">Lowercase, no spaces. Used as an identifier.</div>
+        </div>
+        <div class="field-group">
+          <label>Support Email</label>
+          <input type="email" id="supportEmail" placeholder="support@acme.co.za" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>App URL <span>where the platform will be hosted</span></label>
+        <input type="text" id="appUrl" placeholder="https://acme.vercel.app" />
+        <div class="field-hint">Used for payment return URLs, certificate verification links, and email links.</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label>Default Currency</label>
+          <select id="currency">
+            <option value="ZAR">ZAR — South African Rand</option>
+            <option value="USD">USD — US Dollar</option>
+            <option value="EUR">EUR — Euro</option>
+            <option value="GBP">GBP — British Pound</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Default Language</label>
+          <select id="language">
+            <option value="en">English</option>
+            <option value="af">Afrikaans</option>
+            <option value="zu">Zulu</option>
+            <option value="xh">Xhosa</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Supabase -->
+    <div class="step-panel" id="step-1">
+      <div class="section-eyebrow">Step 2 of 6</div>
+      <div class="section-title">Supabase Configuration</div>
+      <div class="section-desc">Database, authentication, and real-time features. Create a free project at supabase.com, then paste the keys below.</div>
+
+      <div class="field-group">
+        <label>Supabase Project URL</label>
+        <input type="text" id="supabaseUrl" placeholder="https://abcdefghij.supabase.co" />
+        <div class="field-hint">Found under Settings → API → Project URL in your Supabase dashboard.</div>
+      </div>
+
+      <div class="field-group">
+        <label>Supabase Anon (Public) Key</label>
+        <input type="text" id="supabaseAnon" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+        <div class="field-hint">The anon/public key — safe to use in the frontend.</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-eyebrow">Optional</div>
+
+      <div class="field-group">
+        <label>Supabase Service Role Key <span>keep secret — server-side only</span></label>
+        <input type="text" id="supabaseService" placeholder="eyJhbGci... (only needed for Cloudflare Workers)" />
+        <div class="field-hint">Only needed if you're using Cloudflare Workers for webhooks. Never expose in frontend code.</div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Cloudflare -->
+    <div class="step-panel" id="step-2">
+      <div class="section-eyebrow">Step 3 of 6</div>
+      <div class="section-title">Cloudflare R2 Storage</div>
+      <div class="section-desc">Course materials, videos, PDFs, and generated certificates are stored here. Free tier is generous — create a bucket at cloudflare.com/r2.</div>
+
+      <div class="field-group">
+        <label>R2 Endpoint URL</label>
+        <input type="text" id="r2Endpoint" placeholder="https://your-account-id.r2.cloudflarestorage.com" />
+      </div>
+
+      <div class="field-group">
+        <label>R2 Bucket Name</label>
+        <input type="text" id="r2Bucket" placeholder="e.g. acme-training-files" />
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label>R2 Access Key ID</label>
+          <input type="text" id="r2AccessKey" placeholder="your-access-key-id" />
+        </div>
+        <div class="field-group">
+          <label>R2 Secret Access Key</label>
+          <input type="password" id="r2SecretKey" placeholder="your-secret-key" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>R2 Public URL <span>optional — for direct file access</span></label>
+        <input type="text" id="r2PublicUrl" placeholder="https://your-bucket-id.r2.dev" />
+        <div class="field-hint">Enable the r2.dev subdomain in your bucket settings for direct public access to course materials.</div>
+      </div>
+    </div>
+
+    <!-- STEP 4: PayFast -->
+    <div class="step-panel" id="step-3">
+      <div class="section-eyebrow">Step 4 of 6</div>
+      <div class="section-title">PayFast Payments</div>
+      <div class="section-desc">South African payment gateway for course enrolments. Create a merchant account at payfast.co.za.</div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label>Merchant ID</label>
+          <input type="text" id="payfastMerchantId" placeholder="10000100" />
+        </div>
+        <div class="field-group">
+          <label>Merchant Key</label>
+          <input type="text" id="payfastMerchantKey" placeholder="your-merchant-key" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Passphrase <span>optional — set in PayFast dashboard</span></label>
+        <input type="password" id="payfastPassphrase" placeholder="your-passphrase" />
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="toggle-row">
+        <div class="toggle-label">
+          Test / Sandbox Mode
+          <small>Use PayFast sandbox — disable before going live</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="payfastTestMode" checked/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="field-group" style="margin-top:1rem">
+        <label>Notify URL <span>PayFast ITN webhook endpoint</span></label>
+        <input type="text" id="payfastNotifyUrl" placeholder="https://your-worker.workers.dev/payment/notify" />
+        <div class="field-hint">This is your Cloudflare Worker URL that handles PayFast payment confirmations.</div>
+      </div>
+    </div>
+
+    <!-- STEP 5: Whereby + Features -->
+    <div class="step-panel" id="step-4">
+      <div class="section-eyebrow">Step 5 of 6</div>
+      <div class="section-title">Whereby & Features</div>
+      <div class="section-desc">Live video sessions via Whereby Embedded. Create a free account at whereby.com and set up your embed.</div>
+
+      <div class="field-group">
+        <label>Whereby Embed URL</label>
+        <input type="text" id="wherebyUrl" placeholder="https://your-domain.whereby.com/embed/your-room" />
+      </div>
+
+      <div class="field-group">
+        <label>Whereby API Key <span>for creating rooms programmatically</span></label>
+        <input type="password" id="wherebyApiKey" placeholder="your-whereby-api-key" />
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-eyebrow">Platform Features</div>
+
+      <div class="toggle-row">
+        <div class="toggle-label">
+          Live Sessions
+          <small>Enable Whereby video/audio rooms</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="featureLive" checked/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-label">
+          Quizzes & Assessments
+          <small>Auto-graded quiz system</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="featureQuizzes" checked/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-label">
+          Certificates
+          <small>Auto-generate PDF certificates on completion</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="featureCerts" checked/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-label">
+          Payments
+          <small>PayFast course enrolment payments</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="featurePayments" checked/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-label">
+          Trainer Analytics
+          <small>Dashboard with student progress charts</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="featureAnalytics" checked/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- STEP 6: Branding -->
+    <div class="step-panel" id="step-5">
+      <div class="section-eyebrow">Step 6 of 6</div>
+      <div class="section-title">Client Branding</div>
+      <div class="section-desc">Colour palette for this client's instance. These override the default KlasWerk theme.</div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label>Primary Colour</label>
+          <div class="color-row">
+            <input type="color" id="colorPrimary" value="#c9943c" oninput="syncColor('colorPrimary','colorPrimaryHex')"/>
+            <input type="text" id="colorPrimaryHex" value="#c9943c" placeholder="#c9943c" oninput="syncHex('colorPrimaryHex','colorPrimary')"/>
+          </div>
+          <div class="field-hint">Main accent — buttons, links, highlights.</div>
+        </div>
+        <div class="field-group">
+          <label>Secondary Colour</label>
+          <div class="color-row">
+            <input type="color" id="colorSecondary" value="#7a5815" oninput="syncColor('colorSecondary','colorSecondaryHex')"/>
+            <input type="text" id="colorSecondaryHex" value="#7a5815" placeholder="#7a5815" oninput="syncHex('colorSecondaryHex','colorSecondary')"/>
+          </div>
+          <div class="field-hint">Darker accent — hover states, decorative.</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label>Background Dark</label>
+          <div class="color-row">
+            <input type="color" id="colorBg" value="#110e09" oninput="syncColor('colorBg','colorBgHex')"/>
+            <input type="text" id="colorBgHex" value="#110e09" placeholder="#110e09" oninput="syncHex('colorBgHex','colorBg')"/>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Surface Colour</label>
+          <div class="color-row">
+            <input type="color" id="colorSurface" value="#1a1610" oninput="syncColor('colorSurface','colorSurfaceHex')"/>
+            <input type="text" id="colorSurfaceHex" value="#1a1610" placeholder="#1a1610" oninput="syncHex('colorSurfaceHex','colorSurface')"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Logo URL <span>optional</span></label>
+        <input type="text" id="logoUrl" placeholder="https://r2.dev/acme-logo.png" />
+        <div class="field-hint">Hosted on Cloudflare R2 or any public URL. Leave blank to use text logo.</div>
+      </div>
+
+      <div class="field-group">
+        <label>Favicon URL <span>optional</span></label>
+        <input type="text" id="faviconUrl" placeholder="https://r2.dev/acme-favicon.ico" />
+      </div>
+
+      <!-- Live swatch preview -->
+      <div class="divider"></div>
+      <div class="section-eyebrow">Colour Preview</div>
+      <div class="swatch-row" id="swatchRow">
+        <div class="swatch"><div class="swatch-dot" id="sw1" style="background:#c9943c"></div><span class="swatch-name">Primary</span></div>
+        <div class="swatch"><div class="swatch-dot" id="sw2" style="background:#7a5815"></div><span class="swatch-name">Secondary</span></div>
+        <div class="swatch"><div class="swatch-dot" id="sw3" style="background:#110e09"></div><span class="swatch-name">Background</span></div>
+        <div class="swatch"><div class="swatch-dot" id="sw4" style="background:#1a1610"></div><span class="swatch-name">Surface</span></div>
+      </div>
+    </div>
+
+    <!-- STEP 7: Review & Export -->
+    <div class="step-panel" id="step-6">
+      <div class="section-eyebrow">Review & Export</div>
+      <div class="section-title">Your config.js is ready</div>
+      <div class="section-desc">Review the summary below, then download the config file. Place it in the root of your KlasWerk project folder.</div>
+
+      <div class="summary-grid" id="summaryGrid"></div>
+
+      <div class="divider"></div>
+      <div class="section-eyebrow">Generated File</div>
+
+      <div class="preview-card" id="configPreview"></div>
+
+      <div class="download-row">
+        <button class="btn-download" onclick="downloadConfig()">⬇ Download config.js</button>
+        <button class="btn-copy" onclick="copyConfig()">Copy to clipboard</button>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-row">
+      <button class="btn-secondary" id="btnBack" onclick="navigate(-1)" style="visibility:hidden">← Back</button>
+      <span class="step-counter" id="stepCounter">1 / 6</span>
+      <button class="btn-primary" id="btnNext" onclick="navigate(1)">Next →</button>
+    </div>
+
+  </div><!-- /card -->
+
+</div><!-- /wrapper -->
+
+<footer>
+  <div class="footer-brand">✦ &nbsp; MD Works &nbsp; ✦</div>
+  <div class="footer-sub">Morney Deetlefs · South Africa · Builder of useful things for real people</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// KlasWerk Setup Wizard — Logic
+// ══════════════════════════════════════════
+
+const STEPS = [
+  'Client Info',
+  'Supabase',
+  'Cloudflare R2',
+  'PayFast',
+  'Whereby',
+  'Branding',
+  'Export'
+];
+
+let currentStep = 0;
+const totalSteps = STEPS.length;
+
+// Build progress UI
+function buildProgress() {
+  const dots   = document.getElementById('progressDots');
+  const labels = document.getElementById('stepLabels');
+  dots.innerHTML   = '';
+  labels.innerHTML = '';
+
+  STEPS.forEach((label, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot';
+    dot.id = `dot-${i}`;
+    dots.appendChild(dot);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'step-label';
+    lbl.id = `lbl-${i}`;
+    lbl.textContent = label;
+    labels.appendChild(lbl);
+  });
+}
+
+function updateProgress() {
+  STEPS.forEach((_, i) => {
+    const dot = document.getElementById(`dot-${i}`);
+    const lbl = document.getElementById(`lbl-${i}`);
+    dot.className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+    lbl.className = 'step-label' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+  });
+
+  document.querySelectorAll('.step-panel').forEach((p, i) => {
+    p.classList.toggle('active', i === currentStep);
+  });
+
+  const isLast   = currentStep === totalSteps - 1;
+  const isFirst  = currentStep === 0;
+
+  document.getElementById('btnBack').style.visibility = isFirst ? 'hidden' : 'visible';
+  document.getElementById('btnNext').textContent      = isLast ? '✓ Done' : 'Next →';
+  document.getElementById('btnNext').style.display    = isLast ? 'none' : '';
+  document.getElementById('stepCounter').textContent  = isLast
+    ? 'Ready to export'
+    : `${currentStep + 1} / ${totalSteps - 1}`;
+}
+
+function navigate(dir) {
+  if (dir === 1 && currentStep === totalSteps - 2) {
+    // Moving to final export step — build everything
+    buildSummary();
+    buildConfigPreview();
+  }
+  currentStep = Math.max(0, Math.min(totalSteps - 1, currentStep + dir));
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Colour sync ──
+function syncColor(colorId, hexId) {
+  const val = document.getElementById(colorId).value;
+  document.getElementById(hexId).value = val;
+  updateSwatches();
+}
+function syncHex(hexId, colorId) {
+  let val = document.getElementById(hexId).value.trim();
+  if (!val.startsWith('#')) val = '#' + val;
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+    document.getElementById(colorId).value = val;
+    updateSwatches();
+  }
+}
+function updateSwatches() {
+  document.getElementById('sw1').style.background = document.getElementById('colorPrimary').value;
+  document.getElementById('sw2').style.background = document.getElementById('colorSecondary').value;
+  document.getElementById('sw3').style.background = document.getElementById('colorBg').value;
+  document.getElementById('sw4').style.background = document.getElementById('colorSurface').value;
+}
+
+// ── Collect values ──
+function getVal(id) {
+  const el = document.getElementById(id);
+  if (!el) return '';
+  if (el.type === 'checkbox') return el.checked;
+  return el.value.trim();
+}
+
+function collectConfig() {
+  return {
+    // Client
+    appName:       getVal('appName')       || 'KlasWerk Training',
+    clientCode:    getVal('clientCode')    || 'client',
+    supportEmail:  getVal('supportEmail')  || '',
+    appUrl:        getVal('appUrl')        || 'https://your-app.vercel.app',
+    currency:      getVal('currency')      || 'ZAR',
+    language:      getVal('language')      || 'en',
+
+    // Supabase
+    supabaseUrl:     getVal('supabaseUrl')     || '',
+    supabaseAnon:    getVal('supabaseAnon')    || '',
+    supabaseService: getVal('supabaseService') || '',
+
+    // Cloudflare R2
+    r2Endpoint:  getVal('r2Endpoint')  || '',
+    r2Bucket:    getVal('r2Bucket')    || '',
+    r2AccessKey: getVal('r2AccessKey') || '',
+    r2SecretKey: getVal('r2SecretKey') || '',
+    r2PublicUrl: getVal('r2PublicUrl') || '',
+
+    // PayFast
+    payfastMerchantId:  getVal('payfastMerchantId')  || '',
+    payfastMerchantKey: getVal('payfastMerchantKey') || '',
+    payfastPassphrase:  getVal('payfastPassphrase')  || '',
+    payfastTestMode:    getVal('payfastTestMode'),
+    payfastNotifyUrl:   getVal('payfastNotifyUrl')   || '',
+
+    // Whereby
+    wherebyUrl:    getVal('wherebyUrl')    || '',
+    wherebyApiKey: getVal('wherebyApiKey') || '',
+
+    // Features
+    featureLive:      getVal('featureLive'),
+    featureQuizzes:   getVal('featureQuizzes'),
+    featureCerts:     getVal('featureCerts'),
+    featurePayments:  getVal('featurePayments'),
+    featureAnalytics: getVal('featureAnalytics'),
+
+    // Branding
+    colorPrimary:   getVal('colorPrimary')   || '#c9943c',
+    colorSecondary: getVal('colorSecondary') || '#7a5815',
+    colorBg:        getVal('colorBg')        || '#110e09',
+    colorSurface:   getVal('colorSurface')   || '#1a1610',
+    logoUrl:        getVal('logoUrl')        || '',
+    faviconUrl:     getVal('faviconUrl')     || '',
+  };
+}
+
+// ── Summary ──
+function buildSummary() {
+  const c = collectConfig();
+  const mask = v => v ? '•'.repeat(Math.min(v.length, 16)) : '—';
+  const bool = v => v ? 'Enabled' : 'Disabled';
+
+  const rows = [
+    ['Platform Name',    c.appName],
+    ['Client Code',      c.clientCode],
+    ['App URL',          c.appUrl],
+    ['Currency',         c.currency],
+    ['Supabase URL',     c.supabaseUrl || '—'],
+    ['Supabase Key',     c.supabaseAnon ? mask(c.supabaseAnon) : '—'],
+    ['R2 Bucket',        c.r2Bucket || '—'],
+    ['PayFast Merchant', c.payfastMerchantId || '—'],
+    ['PayFast Mode',     c.payfastTestMode ? 'SANDBOX (test)' : 'LIVE'],
+    ['Live Sessions',    bool(c.featureLive)],
+    ['Quizzes',          bool(c.featureQuizzes)],
+    ['Certificates',     bool(c.featureCerts)],
+    ['Payments',         bool(c.featurePayments)],
+    ['Primary Colour',   c.colorPrimary],
+  ];
+
+  const grid = document.getElementById('summaryGrid');
+  grid.innerHTML = rows.map(([k, v]) => `
+    <div class="summary-row">
+      <span class="summary-key">${k}</span>
+      <span class="summary-val">${v}</span>
+    </div>
+  `).join('');
+}
+
+// ── Config generator ──
+function generateConfigString(c) {
+  const now = new Date().toISOString().split('T')[0];
+  return `// ═══════════════════════════════════════════════════
+// KlasWerk — Client Configuration
+// Client  : ${c.appName}
+// Code    : ${c.clientCode}
+// Generated: ${now} via KlasWerk Setup Wizard (MD Works)
+// ═══════════════════════════════════════════════════
+// ⚠  KEEP THIS FILE PRIVATE — contains API keys.
+// ⚠  Never commit to a public GitHub repository.
+// ═══════════════════════════════════════════════════
+
+const KLASWERK_CONFIG = {
+
+  // ── App Identity ─────────────────────────────────
+  app: {
+    name:         "${c.appName}",
+    clientCode:   "${c.clientCode}",
+    url:          "${c.appUrl}",
+    supportEmail: "${c.supportEmail}",
+    currency:     "${c.currency}",
+    language:     "${c.language}",
+  },
+
+  // ── Supabase ──────────────────────────────────────
+  supabase: {
+    url:         "${c.supabaseUrl}",
+    anonKey:     "${c.supabaseAnon}",
+    serviceKey:  "${c.supabaseService}", // server-side only
+  },
+
+  // ── Cloudflare R2 ─────────────────────────────────
+  r2: {
+    endpoint:   "${c.r2Endpoint}",
+    bucket:     "${c.r2Bucket}",
+    accessKey:  "${c.r2AccessKey}",
+    secretKey:  "${c.r2SecretKey}",
+    publicUrl:  "${c.r2PublicUrl}",
+  },
+
+  // ── PayFast ───────────────────────────────────────
+  payfast: {
+    merchantId:  "${c.payfastMerchantId}",
+    merchantKey: "${c.payfastMerchantKey}",
+    passphrase:  "${c.payfastPassphrase}",
+    testMode:    ${c.payfastTestMode},
+    notifyUrl:   "${c.payfastNotifyUrl}",
+    returnUrl:   "${c.appUrl}/payment/return",
+    cancelUrl:   "${c.appUrl}/payment/cancel",
+  },
+
+  // ── Whereby ───────────────────────────────────────
+  whereby: {
+    embedUrl: "${c.wherebyUrl}",
+    apiKey:   "${c.wherebyApiKey}",
+  },
+
+  // ── Feature Flags ─────────────────────────────────
+  features: {
+    liveSessions: ${c.featureLive},
+    quizzes:      ${c.featureQuizzes},
+    certificates: ${c.featureCerts},
+    payments:     ${c.featurePayments},
+    analytics:    ${c.featureAnalytics},
+  },
+
+  // ── Branding ──────────────────────────────────────
+  brand: {
+    primary:   "${c.colorPrimary}",
+    secondary: "${c.colorSecondary}",
+    background: "${c.colorBg}",
+    surface:   "${c.colorSurface}",
+    logoUrl:   "${c.logoUrl}",
+    faviconUrl: "${c.faviconUrl}",
+  },
+
+};
+
+// Make available globally
+if (typeof module !== 'undefined') module.exports = KLASWERK_CONFIG;
+`;
+}
+
+// ── Preview with syntax highlighting ──
+function buildConfigPreview() {
+  const c = collectConfig();
+  const raw = generateConfigString(c);
+
+  // Basic syntax colouring
+  let highlighted = raw
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    // Comments
+    .replace(/(\/\/[^\n]*)/g, '<span class="cmt">$1</span>')
+    // Keys (word before colon)
+    .replace(/(\w+)(\s*:)/g, '<span class="key">$1</span>$2')
+    // Strings
+    .replace(/"([^"]*)"/g, '<span class="str">"$1"</span>')
+    // Booleans
+    .replace(/\b(true|false)\b/g, '<span class="kw">$1</span>')
+    // const / module
+    .replace(/\b(const|if|typeof|module\.exports)\b/g, '<span class="kw">$1</span>');
+
+  document.getElementById('configPreview').innerHTML = highlighted;
+}
+
+// ── Download ──
+function downloadConfig() {
+  const c   = collectConfig();
+  const str = generateConfigString(c);
+  const blob = new Blob([str], { type: 'text/javascript' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `config.${c.clientCode || 'client'}.js`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('config.js downloaded!');
+}
+
+// ── Copy ──
+function copyConfig() {
+  const c   = collectConfig();
+  const str = generateConfigString(c);
+  navigator.clipboard.writeText(str).then(() => showToast('Copied to clipboard!'));
+}
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast success show';
+  setTimeout(() => t.className = 'toast', 2500);
+}
+
+// ── Auto-slug client code from name ──
+document.addEventListener('DOMContentLoaded', () => {
+  buildProgress();
+  updateProgress();
+
+  const nameInput = document.getElementById('appName');
+  const codeInput = document.getElementById('clientCode');
+
+  nameInput.addEventListener('input', () => {
+    if (!codeInput.dataset.manual) {
+      codeInput.value = nameInput.value
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '')
+        .slice(0, 12);
+    }
+  });
+
+  codeInput.addEventListener('input', () => {
+    codeInput.dataset.manual = '1';
+    codeInput.value = codeInput.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+  });
+
+  // Auto-fill notify URL from app URL
+  document.getElementById('appUrl').addEventListener('input', function() {
+    const notifyEl = document.getElementById('payfastNotifyUrl');
+    if (!notifyEl.dataset.manual) {
+      notifyEl.value = this.value.replace(/\/$/, '') + '/api/payment/notify';
+    }
+  });
+
+  document.getElementById('payfastNotifyUrl').addEventListener('input', function() {
+    this.dataset.manual = '1';
+  });
+
+  // ── Theme toggle ──
+  const toggle = document.getElementById('themeToggle');
+  const root   = document.documentElement;
+
+  function updateToggleIcon(theme) {
+    const sun  = toggle.querySelector('.sun-icon');
+    const moon = toggle.querySelector('.moon-icon');
+    sun.style.display  = theme === 'light' ? 'block' : 'none';
+    moon.style.display = theme === 'light' ? 'none'  : 'block';
+  }
+
+  // Set icon on load to match current theme
+  updateToggleIcon(root.getAttribute('data-theme') || 'dark');
+
+  toggle.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme') || 'dark';
+    const next    = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('kw-theme', next);
+    updateToggleIcon(next);
+  });
+});
+</script>
+</body>
+</html>

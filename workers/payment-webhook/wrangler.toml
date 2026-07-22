@@ -1,0 +1,30 @@
+name               = "klaswerk-payment-webhook"
+main               = "index.ts"
+compatibility_date = "2024-01-01"
+
+# ── Secrets (set via `wrangler secret put <KEY>`) ──────────────────────────
+# wrangler secret put SUPABASE_URL
+# wrangler secret put SUPABASE_SERVICE_KEY
+# wrangler secret put PAYFAST_PASSPHRASE
+# wrangler secret put PAYFAST_MERCHANT_ID
+# wrangler secret put TEST_MODE          # 'true' or 'false'
+
+[vars]
+TEST_MODE = "true"   # Override to 'false' for production
+
+# ── KV namespace — Session 10 replay protection ─────────────────────────────
+# Steps to create:
+#   1. wrangler kv:namespace create SEEN_PAYMENTS
+#   2. Copy the id from the output and paste below
+#   3. wrangler deploy
+
+[[kv_namespaces]]
+binding = "SEEN_PAYMENTS"
+id      = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+# preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"  # optional for local dev
+
+# ── Routes ─────────────────────────────────────────────────────────────────
+# Uncomment and replace with your worker domain after deploying:
+# [[routes]]
+# pattern  = "your-worker.workers.dev/payfast-webhook"
+# zone_name = "your-domain.co.za"
