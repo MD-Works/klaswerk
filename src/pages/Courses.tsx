@@ -14,24 +14,24 @@ import { useToast } from '@/hooks/useToast'
 
 // ── Status badge colours ─────────────────────────────────────────────────────
 const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
-  draft:     { bg: 'rgba(201,148,60,.12)',  color: 'var(--kw-primary)',  label: 'Draft'     },
-  published: { bg: 'rgba(76,175,122,.12)',  color: 'var(--kw-success)',  label: 'Published' },
-  archived:  { bg: 'rgba(122,109,88,.12)',  color: 'var(--kw-muted)',    label: 'Archived'  },
+  draft: { bg: 'rgba(201,148,60,.12)', color: 'var(--kw-primary)', label: 'Draft' },
+  published: { bg: 'rgba(76,175,122,.12)', color: 'var(--kw-success)', label: 'Published' },
+  archived: { bg: 'rgba(122,109,88,.12)', color: 'var(--kw-muted)', label: 'Archived' },
 }
 
 // ── Level labels ─────────────────────────────────────────────────────────────
 const LEVEL_LABEL: Record<string, string> = {
-  beginner:     'Beginner',
+  beginner: 'Beginner',
   intermediate: 'Intermediate',
-  advanced:     'Advanced',
+  advanced: 'Advanced',
 }
 
 // ═══════════════════════════════════════════════════
 // Page
 // ═══════════════════════════════════════════════════
 export function CoursesPage() {
-  const navigate       = useNavigate()
-  const { isTrainer }  = useAuth()
+  const navigate = useNavigate()
+  const { isTrainer } = useAuth()
   const {
     fetchTrainerCourses,
     fetchStudentCourses,
@@ -43,8 +43,8 @@ export function CoursesPage() {
   } = useCourse()
   const { toast } = useToast()
 
-  const [courses,     setCourses]     = useState<CourseWithStats[]>([])
-  const [filter,      setFilter]      = useState<'all' | 'draft' | 'published' | 'archived'>('all')
+  const [courses, setCourses] = useState<CourseWithStats[]>([])
+  const [filter, setFilter] = useState<'all' | 'draft' | 'published' | 'archived'>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
   // ── Load courses on mount ────────────────────────────────────────────────
@@ -158,17 +158,17 @@ export function CoursesPage() {
                 key={f}
                 onClick={() => setFilter(f)}
                 style={{
-                  padding:       '0.45rem 0.9rem',
-                  borderRadius:  '4px',
-                  border:        `1px solid ${filter === f ? 'var(--kw-primary)' : 'var(--kw-border-lt)'}`,
-                  background:    filter === f ? 'rgba(201,148,60,.12)' : 'transparent',
-                  color:         filter === f ? 'var(--kw-primary-lt)' : 'var(--kw-muted)',
-                  fontFamily:    'Syne Mono, monospace',
-                  fontSize:      '0.68rem',
+                  padding: '0.45rem 0.9rem',
+                  borderRadius: '4px',
+                  border: `1px solid ${filter === f ? 'var(--kw-primary)' : 'var(--kw-border-lt)'}`,
+                  background: filter === f ? 'rgba(201,148,60,.12)' : 'transparent',
+                  color: filter === f ? 'var(--kw-primary-lt)' : 'var(--kw-muted)',
+                  fontFamily: 'Syne Mono, monospace',
+                  fontSize: '0.68rem',
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  cursor:        'pointer',
-                  transition:    'all 0.2s',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
                 }}
               >
                 {f}
@@ -189,11 +189,11 @@ export function CoursesPage() {
       {/* ── Empty state ────────────────────────────────── */}
       {!isLoading && filtered.length === 0 && (
         <div style={{
-          background:   'var(--kw-surface)',
-          border:       '1px dashed var(--kw-border-lt)',
+          background: 'var(--kw-surface)',
+          border: '1px dashed var(--kw-border-lt)',
           borderRadius: '8px',
-          padding:      '4rem 2rem',
-          textAlign:    'center',
+          padding: '4rem 2rem',
+          textAlign: 'center',
         }}>
           <div style={{ fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', fontSize: '1.1rem', color: 'var(--kw-muted)', marginBottom: '1rem' }}>
             {searchQuery
@@ -213,23 +213,23 @@ export function CoursesPage() {
       {/* ── Course grid ────────────────────────────────── */}
       {!isLoading && filtered.length > 0 && (
         <div style={{
-          display:               'grid',
-          gridTemplateColumns:   'repeat(auto-fill, minmax(300px, 1fr))',
-          gap:                   '1rem',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap: '1rem',
         }}>
           {filtered.map((course) => (
             isTrainer
               ? <TrainerCourseCard
-                  key={course.id}
-                  course={course}
-                  onStatusChange={handleStatusChange}
-                  onDelete={handleDelete}
-                />
+                key={course.id}
+                course={course}
+                onStatusChange={handleStatusChange}
+                onDelete={handleDelete}
+              />
               : <StudentCourseCard
-                  key={course.id}
-                  course={course}
-                  onEnroll={handleEnroll}
-                />
+                key={course.id}
+                course={course}
+                onEnroll={handleEnroll}
+              />
           ))}
         </div>
       )}
@@ -248,24 +248,25 @@ function TrainerCourseCard({
 }: {
   course: CourseWithStats
   onStatusChange: (id: string, status: 'published' | 'archived' | 'draft') => void
-  onDelete:       (id: string, title: string) => void
+  onDelete: (id: string, title: string) => void
 }) {
+  const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const statusStyle = STATUS_STYLE[course.status] ?? STATUS_STYLE.draft
 
   return (
-    <div className="kw-card" style={{ padding: '1.25rem', position: 'relative', cursor: 'pointer' }} onClick={() => window.location.href = `/courses/${course.id}`}>
+    <div className="kw-card" style={{ padding: '1.25rem', position: 'relative', cursor: 'pointer' }} onClick={() => navigate(`/courses/${course.id}`)}>
 
       {/* Status badge */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
         <span style={{
-          background:    statusStyle.bg,
-          color:         statusStyle.color,
-          border:        `1px solid ${statusStyle.color}33`,
-          borderRadius:  '3px',
-          padding:       '0.2rem 0.55rem',
-          fontFamily:    'Syne Mono, monospace',
-          fontSize:      '0.6rem',
+          background: statusStyle.bg,
+          color: statusStyle.color,
+          border: `1px solid ${statusStyle.color}33`,
+          borderRadius: '3px',
+          padding: '0.2rem 0.55rem',
+          fontFamily: 'Syne Mono, monospace',
+          fontSize: '0.6rem',
           letterSpacing: '0.15em',
           textTransform: 'uppercase',
         }}>
@@ -275,15 +276,15 @@ function TrainerCourseCard({
         {/* Kebab menu */}
         <div style={{ position: 'relative' }}>
           <button
-            onClick={() => setMenuOpen((o) => !o)}
+            onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o) }}
             style={{
-              background:  'transparent',
-              border:      'none',
-              color:       'var(--kw-muted)',
-              cursor:      'pointer',
-              padding:     '0.2rem 0.4rem',
-              fontSize:    '1.1rem',
-              lineHeight:  1,
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--kw-muted)',
+              cursor: 'pointer',
+              padding: '0.2rem 0.4rem',
+              fontSize: '1.1rem',
+              lineHeight: 1,
             }}
             aria-label="Course options"
           >
@@ -296,20 +297,20 @@ function TrainerCourseCard({
                 onClick={() => setMenuOpen(false)}
               />
               <div style={{
-                position:   'absolute',
-                right:      0,
-                top:        '100%',
-                zIndex:     20,
+                position: 'absolute',
+                right: 0,
+                top: '100%',
+                zIndex: 20,
                 background: 'var(--kw-panel)',
-                border:     '1px solid var(--kw-border-lt)',
+                border: '1px solid var(--kw-border-lt)',
                 borderRadius: '6px',
-                minWidth:   '160px',
-                overflow:   'hidden',
-                boxShadow:  '0 8px 24px rgba(0,0,0,0.4)',
+                minWidth: '160px',
+                overflow: 'hidden',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
               }}>
                 <MenuAction label="Edit course" onClick={() => {
                   setMenuOpen(false)
-                  window.location.href = `/courses/${course.id}`
+                  navigate(`/courses/${course.id}`)
                 }} />
                 {course.status !== 'published' && (
                   <MenuAction label="Publish" onClick={() => { setMenuOpen(false); onStatusChange(course.id, 'published') }} />
@@ -333,12 +334,12 @@ function TrainerCourseCard({
         style={{ textDecoration: 'none' }}
       >
         <h3 style={{
-          fontFamily:   'Cinzel, serif',
-          fontSize:     '0.95rem',
-          fontWeight:   600,
-          color:        'var(--kw-primary-lt)',
+          fontFamily: 'Cinzel, serif',
+          fontSize: '0.95rem',
+          fontWeight: 600,
+          color: 'var(--kw-primary-lt)',
           marginBottom: '0.4rem',
-          lineHeight:   1.35,
+          lineHeight: 1.35,
         }}>
           {course.title}
         </h3>
@@ -347,15 +348,15 @@ function TrainerCourseCard({
       {/* Description */}
       {course.description && (
         <p style={{
-          fontFamily:   'Raleway, sans-serif',
-          fontSize:     '0.8rem',
-          color:        'var(--kw-muted)',
-          lineHeight:   1.5,
+          fontFamily: 'Raleway, sans-serif',
+          fontSize: '0.8rem',
+          color: 'var(--kw-muted)',
+          lineHeight: 1.5,
           marginBottom: '1rem',
-          display:      '-webkit-box',
+          display: '-webkit-box',
           WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical',
-          overflow:     'hidden',
+          overflow: 'hidden',
         }}>
           {course.description}
         </p>
@@ -363,7 +364,7 @@ function TrainerCourseCard({
 
       {/* Meta row */}
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <MetaPill label="Lessons"  value={String(course.lesson_count ?? 0)} />
+        <MetaPill label="Lessons" value={String(course.lesson_count ?? 0)} />
         <MetaPill label="Students" value={String(course.enrollment_count ?? 0)} />
         {course.price > 0 && (
           <MetaPill label="Price" value={`R ${course.price.toFixed(2)}`} />
@@ -383,11 +384,11 @@ function StudentCourseCard({
   course,
   onEnroll,
 }: {
-  course:   CourseWithStats
+  course: CourseWithStats
   onEnroll: (id: string) => void
 }) {
   const isEnrolled = !!course.enrollment
-  const progress   = course.enrollment?.progress ?? 0
+  const progress = course.enrollment?.progress ?? 0
 
   return (
     <div className="kw-card" style={{ padding: '1.25rem' }}>
@@ -396,13 +397,13 @@ function StudentCourseCard({
       {isEnrolled && (
         <div style={{ marginBottom: '0.75rem' }}>
           <span style={{
-            background:    'rgba(76,175,122,.12)',
-            color:         'var(--kw-success)',
-            border:        '1px solid rgba(76,175,122,.25)',
-            borderRadius:  '3px',
-            padding:       '0.2rem 0.55rem',
-            fontFamily:    'Syne Mono, monospace',
-            fontSize:      '0.6rem',
+            background: 'rgba(76,175,122,.12)',
+            color: 'var(--kw-success)',
+            border: '1px solid rgba(76,175,122,.25)',
+            borderRadius: '3px',
+            padding: '0.2rem 0.55rem',
+            fontFamily: 'Syne Mono, monospace',
+            fontSize: '0.6rem',
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
           }}>
@@ -415,24 +416,24 @@ function StudentCourseCard({
       {isEnrolled ? (
         <Link to={`/courses/${course.id}`} style={{ textDecoration: 'none' }}>
           <h3 style={{
-            fontFamily:   'Cinzel, serif',
-            fontSize:     '0.95rem',
-            fontWeight:   600,
-            color:        'var(--kw-primary-lt)',
+            fontFamily: 'Cinzel, serif',
+            fontSize: '0.95rem',
+            fontWeight: 600,
+            color: 'var(--kw-primary-lt)',
             marginBottom: '0.4rem',
-            lineHeight:   1.35,
+            lineHeight: 1.35,
           }}>
             {course.title}
           </h3>
         </Link>
       ) : (
         <h3 style={{
-          fontFamily:   'Cinzel, serif',
-          fontSize:     '0.95rem',
-          fontWeight:   600,
-          color:        'var(--kw-primary-lt)',
+          fontFamily: 'Cinzel, serif',
+          fontSize: '0.95rem',
+          fontWeight: 600,
+          color: 'var(--kw-primary-lt)',
           marginBottom: '0.4rem',
-          lineHeight:   1.35,
+          lineHeight: 1.35,
         }}>
           {course.title}
         </h3>
@@ -441,11 +442,11 @@ function StudentCourseCard({
       {/* Trainer */}
       {course.trainer?.full_name && (
         <div style={{
-          fontFamily:    'Syne Mono, monospace',
-          fontSize:      '0.62rem',
-          color:         'var(--kw-primary-dk)',
+          fontFamily: 'Syne Mono, monospace',
+          fontSize: '0.62rem',
+          color: 'var(--kw-primary-dk)',
           letterSpacing: '0.1em',
-          marginBottom:  '0.5rem',
+          marginBottom: '0.5rem',
         }}>
           by {course.trainer.full_name}
         </div>
@@ -454,15 +455,15 @@ function StudentCourseCard({
       {/* Description */}
       {course.description && (
         <p style={{
-          fontFamily:      'Raleway, sans-serif',
-          fontSize:        '0.8rem',
-          color:           'var(--kw-muted)',
-          lineHeight:      1.5,
-          marginBottom:    '1rem',
-          display:         '-webkit-box',
+          fontFamily: 'Raleway, sans-serif',
+          fontSize: '0.8rem',
+          color: 'var(--kw-muted)',
+          lineHeight: 1.5,
+          marginBottom: '1rem',
+          display: '-webkit-box',
           WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical',
-          overflow:        'hidden',
+          overflow: 'hidden',
         }}>
           {course.description}
         </p>
@@ -477,8 +478,8 @@ function StudentCourseCard({
           </div>
           <div style={{ height: '2px', background: 'var(--kw-border)', borderRadius: '2px', overflow: 'hidden' }}>
             <div style={{
-              height:     '100%',
-              width:      `${progress}%`,
+              height: '100%',
+              width: `${progress}%`,
               background: 'linear-gradient(90deg, var(--kw-primary-dk), var(--kw-primary))',
               borderRadius: '2px',
               transition: 'width 0.4s ease',
@@ -512,16 +513,16 @@ function StudentCourseCard({
           <Link
             to={`/courses/${course.id}`}
             style={{
-              padding:       '0.5rem 1rem',
-              background:    'transparent',
-              border:        '1px solid var(--kw-border-lt)',
-              borderRadius:  '4px',
-              color:         'var(--kw-muted)',
-              fontFamily:    'Raleway, sans-serif',
-              fontSize:      '0.75rem',
+              padding: '0.5rem 1rem',
+              background: 'transparent',
+              border: '1px solid var(--kw-border-lt)',
+              borderRadius: '4px',
+              color: 'var(--kw-muted)',
+              fontFamily: 'Raleway, sans-serif',
+              fontSize: '0.75rem',
               letterSpacing: '0.05em',
-              cursor:        'pointer',
-              transition:    'all 0.2s',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
               textDecoration: 'none',
             }}
           >
@@ -554,18 +555,18 @@ function MenuAction({ label, onClick, danger = false }: { label: string; onClick
     <button
       onClick={onClick}
       style={{
-        display:       'block',
-        width:         '100%',
-        textAlign:     'left',
-        padding:       '0.6rem 1rem',
-        background:    'transparent',
-        border:        'none',
-        borderBottom:  '1px solid var(--kw-border)',
-        color:         danger ? 'var(--kw-danger)' : 'var(--kw-cream)',
-        fontFamily:    'Raleway, sans-serif',
-        fontSize:      '0.82rem',
-        cursor:        'pointer',
-        transition:    'background 0.15s',
+        display: 'block',
+        width: '100%',
+        textAlign: 'left',
+        padding: '0.6rem 1rem',
+        background: 'transparent',
+        border: 'none',
+        borderBottom: '1px solid var(--kw-border)',
+        color: danger ? 'var(--kw-danger)' : 'var(--kw-cream)',
+        fontFamily: 'Raleway, sans-serif',
+        fontSize: '0.82rem',
+        cursor: 'pointer',
+        transition: 'background 0.15s',
       }}
       onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--kw-surface)')}
       onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
@@ -574,4 +575,6 @@ function MenuAction({ label, onClick, danger = false }: { label: string; onClick
     </button>
   )
 }
+
+
 
